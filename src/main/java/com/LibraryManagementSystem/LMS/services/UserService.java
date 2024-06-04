@@ -1,5 +1,7 @@
 package com.LibraryManagementSystem.LMS.services;
 
+import com.LibraryManagementSystem.LMS.auth.LoginRequest;
+import com.LibraryManagementSystem.LMS.auth.SignupRequest;
 import com.LibraryManagementSystem.LMS.domain.User;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +13,7 @@ public interface UserService {
 
     Boolean existsByUsername(String username);
 
-    void save(User user);
+    String authenticateUser(LoginRequest request);
 
-    Optional<User> findByEmail(String email);
+    void registerUser(SignupRequest request);
 }
