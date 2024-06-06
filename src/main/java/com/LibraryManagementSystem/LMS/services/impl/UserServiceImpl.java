@@ -33,17 +33,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Boolean existsByEmail(String email) {
-        return userRepository.existsByEmail(email);
-    }
-
-    @Override
-    public Boolean existsByUsername(String username) {
-        return userRepository.existsByUsername(username);
-    }
-
-
-    @Override
     public String authenticateUser(LoginRequest request) {
 
         User user = userRepository.findByEmail(request.getEmail()).orElseThrow(() ->
@@ -58,11 +47,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void registerUser(SignupRequest request) {
-        if (existsByEmail(request.getEmail())) {
+        if (userRepository.existsByEmail(request.getEmail())) {
             throw new UserAlreadyExistsException("User with email: " + request.getEmail() + " already exists");
         }
 
-        if (existsByUsername(request.getUsername())) {
+        if (userRepository.existsByUsername(request.getUsername())) {
             throw new UserAlreadyExistsException("User with username: " + request.getUsername() + " already exists");
         }
 

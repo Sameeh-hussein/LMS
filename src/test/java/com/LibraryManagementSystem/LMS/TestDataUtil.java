@@ -1,5 +1,7 @@
 package com.LibraryManagementSystem.LMS;
 
+import com.LibraryManagementSystem.LMS.auth.LoginRequest;
+import com.LibraryManagementSystem.LMS.auth.SignupRequest;
 import com.LibraryManagementSystem.LMS.domain.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -12,18 +14,51 @@ public class TestDataUtil {
 
     private final PasswordEncoder passwordEncoder;
 
+    public static String password = "Aa12345";
+
     @Autowired
     public TestDataUtil(PasswordEncoder passwordEncoder) {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public User createUserForTest(){
+    public User createUserForTest() {
         return User.builder()
                 .id(1L)
                 .username("Ali-Ahmad")
                 .email("ali@gmail.com")
-                .password(passwordEncoder.encode("Aa12345"))
+                .password(passwordEncoder.encode(password))
                 .createdAt(LocalDateTime.now())
+                .build();
+    }
+
+    public User createUserForTestWithoutCreatedAt() {
+        return User.builder()
+                .id(1L)
+                .username("Ali-Ahmad")
+                .email("ali@gmail.com")
+                .password(password)
+                .build();
+    }
+
+    public LoginRequest createLoginRequestForTest() {
+        return LoginRequest.builder()
+                .email("ali@gmail.com")
+                .password(password)
+                .build();
+    }
+
+    public LoginRequest createUnValidLoginRequestForTest() {
+        return LoginRequest.builder()
+                .email("notexist@gmail.com")
+                .password("notexist")
+                .build();
+    }
+
+    public SignupRequest createSignupRequestForTest() {
+        return SignupRequest.builder()
+                .email("ali@gmail.com")
+                .username("Ali-Ahmad")
+                .password(password)
                 .build();
     }
 }

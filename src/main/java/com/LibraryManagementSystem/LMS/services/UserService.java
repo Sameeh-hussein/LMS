@@ -9,9 +9,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserService {
-    Boolean existsByEmail(String email);
-
-    Boolean existsByUsername(String username);
 
     String authenticateUser(LoginRequest request);
 
