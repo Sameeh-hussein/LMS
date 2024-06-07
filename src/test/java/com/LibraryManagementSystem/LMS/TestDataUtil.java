@@ -16,7 +16,6 @@ public class TestDataUtil {
 
     public static String password = "Aa12345";
 
-    @Autowired
     public TestDataUtil(PasswordEncoder passwordEncoder) {
         this.passwordEncoder = passwordEncoder;
     }

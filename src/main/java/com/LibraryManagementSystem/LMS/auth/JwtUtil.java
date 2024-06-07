@@ -12,7 +12,6 @@ import java.util.Date;
 public class JwtUtil {
     private final JwtConfig jwtConfig;
 
-    @Autowired
     public JwtUtil(JwtConfig jwtConfig) {
         this.jwtConfig = jwtConfig;
     }

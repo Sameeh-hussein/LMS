@@ -18,14 +18,11 @@ import java.util.Optional;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD) // clean the database after each test
 public class UserRepositoryIntegrationTest {
 
-    private final UserRepository underTest;
-    private final TestDataUtil testDataUtil;
+    @Autowired
+    private UserRepository underTest;
 
     @Autowired
-    public UserRepositoryIntegrationTest(UserRepository underTest, TestDataUtil testDataUtil) {
-        this.underTest = underTest;
-        this.testDataUtil = testDataUtil;
-    }
+    private TestDataUtil testDataUtil;
 
     @Test
     public void testThatUserCanBeCreatedAndRecalledByEmail() {

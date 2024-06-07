@@ -20,7 +20,6 @@ public class UserServiceImpl implements UserService {
     private final JwtUtil jwtUtil;
     private final UserMapper userMapper;
 
-    @Autowired
     public UserServiceImpl(UserRepository userRepository,
                            PasswordEncoder passwordEncoder,
                            JwtUtil jwtUtil,

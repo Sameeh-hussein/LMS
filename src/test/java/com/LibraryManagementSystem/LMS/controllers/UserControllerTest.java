@@ -24,21 +24,17 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 @AutoConfigureMockMvc
 public class UserControllerTest {
 
-    private final MockMvc mockMvc;
-
-    private final ObjectMapper objectMapper;
-
-    private final TestDataUtil testDataUtil;
-
-    private final UserRepository userRepository;
+    @Autowired
+    private MockMvc mockMvc;
 
     @Autowired
-    public UserControllerTest(MockMvc mockMvc, ObjectMapper objectMapper, TestDataUtil testDataUtil, UserRepository userRepository) {
-        this.mockMvc = mockMvc;
-        this.objectMapper = objectMapper;
-        this.testDataUtil = testDataUtil;
-        this.userRepository = userRepository;
-    }
+    private ObjectMapper objectMapper;
+
+    @Autowired
+    private TestDataUtil testDataUtil;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Test
     public void testThatLoginReturnsHttp200OkWhenUserExist() throws Exception {
