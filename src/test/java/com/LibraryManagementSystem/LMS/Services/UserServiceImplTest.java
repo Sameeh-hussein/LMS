@@ -4,10 +4,13 @@ import com.LibraryManagementSystem.LMS.TestDataUtil;
 import com.LibraryManagementSystem.LMS.auth.JwtUtil;
 import com.LibraryManagementSystem.LMS.auth.LoginRequest;
 import com.LibraryManagementSystem.LMS.auth.SignupRequest;
+import com.LibraryManagementSystem.LMS.domain.Role;
 import com.LibraryManagementSystem.LMS.domain.User;
+import com.LibraryManagementSystem.LMS.exceptions.RoleNotFoundException;
 import com.LibraryManagementSystem.LMS.exceptions.UserAlreadyExistsException;
 import com.LibraryManagementSystem.LMS.exceptions.UserNotFoundException;
 import com.LibraryManagementSystem.LMS.mappers.impl.UserMapper;
+import com.LibraryManagementSystem.LMS.repositories.RoleRepository;
 import com.LibraryManagementSystem.LMS.repositories.UserRepository;
 import com.LibraryManagementSystem.LMS.services.impl.UserServiceImpl;
 import org.junit.jupiter.api.Test;
@@ -35,6 +38,9 @@ public class UserServiceImplTest {
     private UserRepository userRepository;
 
     @Mock
+    private RoleRepository roleRepository;
+
+    @Mock
     private PasswordEncoder passwordEncoder;
 
     @Mock
@@ -60,7 +66,7 @@ public class UserServiceImplTest {
         when(passwordEncoder.matches(loginRequest.getPassword(), user.getPassword()))
                 .thenReturn(true);
 
-        when(jwtUtil.generateToken(user.getUsername()))
+        when(jwtUtil.generateToken(user))
                 .thenReturn("token");
 
         String token = underTest.authenticateUser(loginRequest);
@@ -76,7 +82,7 @@ public class UserServiceImplTest {
                 .matches(TestDataUtil.password, user.getPassword());
 
         verify(jwtUtil, times(1))
-                .generateToken(user.getUsername());
+                .generateToken(user);
     }
 
     @Test
@@ -100,7 +106,7 @@ public class UserServiceImplTest {
                 .matches(anyString(), anyString());
 
         verify(jwtUtil, never())
-                .generateToken(anyString());
+                .generateToken(any(User.class));
     }
 
     @Test
@@ -130,7 +136,7 @@ public class UserServiceImplTest {
                 .matches(loginRequest.getPassword(), user.getPassword());
 
         verify(jwtUtil, never())
-                .generateToken(anyString());
+                .generateToken(any(User.class));
     }
 
     @Test
@@ -147,19 +153,25 @@ public class UserServiceImplTest {
         when(userRepository.existsByUsername(signupRequest.getUsername()))
                 .thenReturn(false);
 
+        when(roleRepository.findByName("ROLE_MEMBER"))
+                .thenReturn(Optional.of(new Role()));
+
         when(passwordEncoder.encode(TestDataUtil.password))
                 .thenReturn(user.getPassword());
 
         when(userMapper.mapFrom(signupRequest))
                 .thenReturn(userWithoutCreatedAt);
 
-        underTest.registerUser(signupRequest);
+        underTest.registerUserWithRole(signupRequest, "ROLE_MEMBER");
 
         verify(userRepository, times(1))
                 .existsByEmail(signupRequest.getEmail());
 
         verify(userRepository, times(1))
                 .existsByUsername(signupRequest.getUsername());
+
+        verify(roleRepository, times(1))
+                .findByName("ROLE_MEMBER");
 
         verify(passwordEncoder, times(1))
                 .encode(signupRequest.getPassword());
@@ -176,7 +188,7 @@ public class UserServiceImplTest {
                 .thenReturn(true);
 
         UserAlreadyExistsException userAlreadyExistsException = assertThrows(UserAlreadyExistsException.class, () -> {
-            underTest.registerUser(signupRequest);
+            underTest.registerUserWithRole(signupRequest, "ROLE_MEMBER");
         });
 
         assertNotNull(userAlreadyExistsException);
@@ -190,6 +202,9 @@ public class UserServiceImplTest {
         verify(userRepository, never())
                 .existsByUsername(anyString());
 
+        verify(roleRepository, never())
+                .findByName(anyString());
+
         verify(passwordEncoder, never())
                 .encode(anyString());
 
@@ -198,7 +213,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    public void testThatRegisterUserThrowUserAlreadyExistsExceptionWhenUserNameExist(){
+    public void testThatRegisterUserThrowUserAlreadyExistsExceptionWhenUserNameExist() {
         SignupRequest signupRequest = testDataUtil.createSignupRequestForTest();
 
         when(userRepository.existsByEmail(signupRequest.getEmail()))
@@ -208,7 +223,7 @@ public class UserServiceImplTest {
                 .thenReturn(true);
 
         UserAlreadyExistsException userAlreadyExistsException = assertThrows(UserAlreadyExistsException.class, () -> {
-            underTest.registerUser(signupRequest);
+            underTest.registerUserWithRole(signupRequest, "ROLE_MEMBER");
         });
 
         assertNotNull(userAlreadyExistsException);
@@ -219,10 +234,49 @@ public class UserServiceImplTest {
         verify(userRepository, times(1))
                 .existsByUsername(signupRequest.getUsername());
 
+        verify(roleRepository, never())
+                .findByName(anyString());
+
         verify(passwordEncoder, never())
                 .encode(anyString());
 
         verify(userMapper, never())
                 .mapFrom(any(SignupRequest.class));
     }
+
+    @Test
+    public void testThatRegisterUserThrowRoleNotFoundExceptionWhenRoleNotExist() {
+        SignupRequest signupRequest = testDataUtil.createSignupRequestForTest();
+
+        when(userRepository.existsByEmail(signupRequest.getEmail()))
+                .thenReturn(false);
+
+        when(userRepository.existsByUsername(signupRequest.getUsername()))
+                .thenReturn(false);
+
+        when(roleRepository.findByName("ROLE_MEMBER"))
+                .thenReturn(Optional.empty());
+
+        RoleNotFoundException roleNotFoundException = assertThrows(RoleNotFoundException.class, () -> {
+            underTest.registerUserWithRole(signupRequest, "ROLE_MEMBER");
+        });
+
+        assertNotNull(roleNotFoundException);
+
+        verify(userRepository, times(1))
+                .existsByEmail(signupRequest.getEmail());
+
+        verify(userRepository, times(1))
+                .existsByUsername(signupRequest.getUsername());
+
+        verify(roleRepository, times(1))
+                .findByName("ROLE_MEMBER");
+
+        verify(passwordEncoder, never())
+                .encode(anyString());
+
+        verify(userMapper, never())
+                .mapFrom(any(SignupRequest.class));
+    }
+
 }
