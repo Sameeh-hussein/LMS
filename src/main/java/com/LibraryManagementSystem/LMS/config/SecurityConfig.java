@@ -23,7 +23,12 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
                 .authorizeRequests(authorizeRequests ->
                         authorizeRequests
-                                .requestMatchers("/login", "/signup").permitAll()
+                                .requestMatchers("/api/auth/login",
+                                        "/api/auth/register-admin",
+                                        "/api/auth/register-member",
+                                        "/api/auth/register-librarian",
+                                        "/api/roles")
+                                .permitAll()
                                 .anyRequest().authenticated()
                 );
         return http.build();

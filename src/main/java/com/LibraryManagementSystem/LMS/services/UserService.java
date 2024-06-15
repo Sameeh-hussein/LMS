@@ -12,5 +12,5 @@ public interface UserService {
 
     String authenticateUser(LoginRequest request);
 
-    void registerUser(SignupRequest request);
+    void registerUserWithRole(SignupRequest request, String Role);
 }

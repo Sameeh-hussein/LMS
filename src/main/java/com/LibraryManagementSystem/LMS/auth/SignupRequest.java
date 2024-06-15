@@ -3,7 +3,7 @@ package com.LibraryManagementSystem.LMS.auth;
 import jakarta.persistence.Column;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NonNull;
+
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
@@ -11,13 +11,13 @@ import javax.validation.constraints.NotBlank;
 @Builder
 public class SignupRequest {
 
-    @NotBlank
+    @NotBlank(message = "User name is required")
     private String username;
 
-    @NotBlank
+    @NotBlank(message = "Email is required")
     @Email
     private String email;
 
-    @NotBlank
+    @NotBlank(message = "Password is required")
     private String password;
 }
