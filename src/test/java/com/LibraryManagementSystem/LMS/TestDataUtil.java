@@ -2,6 +2,7 @@ package com.LibraryManagementSystem.LMS;
 
 import com.LibraryManagementSystem.LMS.auth.LoginRequest;
 import com.LibraryManagementSystem.LMS.auth.SignupRequest;
+import com.LibraryManagementSystem.LMS.domain.Role;
 import com.LibraryManagementSystem.LMS.domain.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,6 +28,13 @@ public class TestDataUtil {
                 .email("ali@gmail.com")
                 .password(passwordEncoder.encode(password))
                 .createdAt(LocalDateTime.now())
+                .build();
+    }
+
+    public Role createRoleForTest() {
+        return Role.builder()
+                .id(1L)
+                .name("ROLE_MEMBER")
                 .build();
     }
 

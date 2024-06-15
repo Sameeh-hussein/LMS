@@ -27,11 +27,6 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public Optional<Role> findByName(String name) {
-        return Optional.empty();
-    }
-
-    @Override
     public void addNewRole(AddRoleDto request) {
 
         if (roleRepository.existsByName(request.getName())) {
