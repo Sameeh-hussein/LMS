@@ -1,6 +1,7 @@
 package com.LibraryManagementSystem.LMS.auth;
 
 import com.LibraryManagementSystem.LMS.config.JwtConfig;
+import com.LibraryManagementSystem.LMS.domain.User;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +17,10 @@ public class JwtUtil {
         this.jwtConfig = jwtConfig;
     }
 
-    public String generateToken(String username) {
+    public String generateToken(User user) {
         return Jwts.builder()
-                .setSubject(username)
+                .setSubject(user.getUsername())
+                .claim("role", user.getRole().getName())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtConfig.getExpirationTime()))
                 .signWith(SignatureAlgorithm.HS512, jwtConfig.getSecret())
                 .compact();
