@@ -29,7 +29,7 @@ public class SecurityConfig {
                                         "/api/auth/register-librarian",
                                         "/api/roles")
                                 .permitAll()
-                                .anyRequest().authenticated()
+                                .anyRequest().permitAll()
                 );
         return http.build();
     }
