@@ -6,10 +6,11 @@ import com.LibraryManagementSystem.LMS.auth.LoginRequest;
 import com.LibraryManagementSystem.LMS.auth.SignupRequest;
 import com.LibraryManagementSystem.LMS.domain.Role;
 import com.LibraryManagementSystem.LMS.domain.User;
+import com.LibraryManagementSystem.LMS.dto.ReturnUserDto;
 import com.LibraryManagementSystem.LMS.exceptions.RoleNotFoundException;
 import com.LibraryManagementSystem.LMS.exceptions.UserAlreadyExistsException;
 import com.LibraryManagementSystem.LMS.exceptions.UserNotFoundException;
-import com.LibraryManagementSystem.LMS.mappers.impl.UserMapper;
+import com.LibraryManagementSystem.LMS.mappers.impl.UserRequestMapper;
 import com.LibraryManagementSystem.LMS.repositories.RoleRepository;
 import com.LibraryManagementSystem.LMS.repositories.UserRepository;
 import com.LibraryManagementSystem.LMS.services.impl.UserServiceImpl;
@@ -47,7 +48,7 @@ public class UserServiceImplTest {
     private JwtUtil jwtUtil;
 
     @Mock
-    private UserMapper userMapper;
+    private UserRequestMapper userRequestMapper;
 
     @InjectMocks
     private UserServiceImpl underTest;
@@ -159,7 +160,7 @@ public class UserServiceImplTest {
         when(passwordEncoder.encode(TestDataUtil.password))
                 .thenReturn(user.getPassword());
 
-        when(userMapper.mapFrom(signupRequest))
+        when(userRequestMapper.mapFrom(signupRequest))
                 .thenReturn(userWithoutCreatedAt);
 
         underTest.registerUserWithRole(signupRequest, "ROLE_MEMBER");
@@ -176,7 +177,7 @@ public class UserServiceImplTest {
         verify(passwordEncoder, times(1))
                 .encode(signupRequest.getPassword());
 
-        verify(userMapper, times(1))
+        verify(userRequestMapper, times(1))
                 .mapFrom(signupRequest);
     }
 
@@ -208,7 +209,7 @@ public class UserServiceImplTest {
         verify(passwordEncoder, never())
                 .encode(anyString());
 
-        verify(userMapper, never())
+        verify(userRequestMapper, never())
                 .mapFrom(any(SignupRequest.class));
     }
 
@@ -240,7 +241,7 @@ public class UserServiceImplTest {
         verify(passwordEncoder, never())
                 .encode(anyString());
 
-        verify(userMapper, never())
+        verify(userRequestMapper, never())
                 .mapFrom(any(SignupRequest.class));
     }
 
@@ -275,7 +276,7 @@ public class UserServiceImplTest {
         verify(passwordEncoder, never())
                 .encode(anyString());
 
-        verify(userMapper, never())
+        verify(userRequestMapper, never())
                 .mapFrom(any(SignupRequest.class));
     }
 

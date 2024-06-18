@@ -4,15 +4,14 @@ import com.LibraryManagementSystem.LMS.auth.SignupRequest;
 import com.LibraryManagementSystem.LMS.domain.User;
 import com.LibraryManagementSystem.LMS.mappers.Mapper;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UserMapper implements Mapper<User, SignupRequest> {
+public class UserRequestMapper implements Mapper<User, SignupRequest> {
 
     private final ModelMapper modelMapper;
 
-    public UserMapper(ModelMapper modelMapper) {
+    public UserRequestMapper(ModelMapper modelMapper) {
         this.modelMapper = modelMapper;
     }
 
