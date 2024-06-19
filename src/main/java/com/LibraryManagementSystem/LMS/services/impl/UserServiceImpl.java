@@ -30,14 +30,13 @@ public class UserServiceImpl implements UserService {
     private final JwtUtil jwtUtil;
     private final UserRequestMapper userRequestMapper;
     private final UserReturnMapper userReturnMapper;
-    private static final Logger logger = LoggerFactory.getLogger(RoleServiceImpl.class);
 
     public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository,
                            PasswordEncoder passwordEncoder,
                            JwtUtil jwtUtil,
                            UserRequestMapper userRequestMapper,
-                           UserReturnMapper userReturnMapper,
-                           ModelMapper modelMapper) {
+                           UserReturnMapper userReturnMapper
+                           ) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;

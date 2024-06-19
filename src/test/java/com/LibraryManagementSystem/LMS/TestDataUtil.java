@@ -31,6 +31,16 @@ public class TestDataUtil {
                 .build();
     }
 
+    public User createUserForTest1(){
+        return User.builder()
+                .id(2L)
+                .username("Rami-Ghassan")
+                .email("rami@gmail.com")
+                .password(passwordEncoder.encode(password))
+                .createdAt(LocalDateTime.now())
+                .build();
+    }
+
     public Role createRoleForTest() {
         return Role.builder()
                 .id(1L)

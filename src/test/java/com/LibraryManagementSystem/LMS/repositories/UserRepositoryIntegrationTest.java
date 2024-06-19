@@ -1,6 +1,7 @@
 package com.LibraryManagementSystem.LMS.repositories;
 
 import com.LibraryManagementSystem.LMS.TestDataUtil;
+import com.LibraryManagementSystem.LMS.domain.Role;
 import com.LibraryManagementSystem.LMS.domain.User;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,9 +25,17 @@ public class UserRepositoryIntegrationTest {
     @Autowired
     private TestDataUtil testDataUtil;
 
+    @Autowired
+    private RoleRepository roleRepository;
+
     @Test
     public void testThatUserCanBeCreatedAndRecalledByEmail() {
         User user = testDataUtil.createUserForTest();
+        Role role = testDataUtil.createRoleForTest();
+
+        roleRepository.save(role);
+
+        user.setRole(role);
 
         underTest.save(user);
 
@@ -36,11 +45,37 @@ public class UserRepositoryIntegrationTest {
         assertThat(result.get().getId()).isEqualTo(user.getId());
         assertThat(result.get().getUsername()).isEqualTo(user.getUsername());
         assertThat(result.get().getEmail()).isEqualTo(user.getEmail());
+        assertThat(result.get().getRole().getName()).isEqualTo(role.getName());
+    }
+
+    @Test
+    public void testThatUserCanBeCreatedAndRecalledById() {
+        User user = testDataUtil.createUserForTest();
+        Role role = testDataUtil.createRoleForTest();
+
+        roleRepository.save(role);
+
+        user.setRole(role);
+
+        underTest.save(user);
+
+        Optional<User> result = underTest.findUserById(user.getId());
+
+        assertThat(result).isPresent();
+        assertThat(result.get().getId()).isEqualTo(user.getId());
+        assertThat(result.get().getUsername()).isEqualTo(user.getUsername());
+        assertThat(result.get().getEmail()).isEqualTo(user.getEmail());
+        assertThat(result.get().getRole().getName()).isEqualTo(role.getName());
     }
 
     @Test
     public void testThatUserExistByEmail() {
         User user = testDataUtil.createUserForTest();
+        Role role = testDataUtil.createRoleForTest();
+
+        roleRepository.save(role);
+
+        user.setRole(role);
 
         underTest.save(user);
 
@@ -52,6 +87,11 @@ public class UserRepositoryIntegrationTest {
     @Test
     public void testThatUserExistByUserName() {
         User user = testDataUtil.createUserForTest();
+        Role role = testDataUtil.createRoleForTest();
+
+        roleRepository.save(role);
+
+        user.setRole(role);
 
         underTest.save(user);
 

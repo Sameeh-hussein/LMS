@@ -4,13 +4,17 @@ import com.LibraryManagementSystem.LMS.TestDataUtil;
 import com.LibraryManagementSystem.LMS.auth.JwtUtil;
 import com.LibraryManagementSystem.LMS.auth.LoginRequest;
 import com.LibraryManagementSystem.LMS.auth.SignupRequest;
+import com.LibraryManagementSystem.LMS.auth.UpdateDataRequest;
 import com.LibraryManagementSystem.LMS.domain.Role;
 import com.LibraryManagementSystem.LMS.domain.User;
+import com.LibraryManagementSystem.LMS.dto.ReturnRoleDto;
 import com.LibraryManagementSystem.LMS.dto.ReturnUserDto;
+import com.LibraryManagementSystem.LMS.exceptions.InvalidPasswordException;
 import com.LibraryManagementSystem.LMS.exceptions.RoleNotFoundException;
 import com.LibraryManagementSystem.LMS.exceptions.UserAlreadyExistsException;
 import com.LibraryManagementSystem.LMS.exceptions.UserNotFoundException;
 import com.LibraryManagementSystem.LMS.mappers.impl.UserRequestMapper;
+import com.LibraryManagementSystem.LMS.mappers.impl.UserReturnMapper;
 import com.LibraryManagementSystem.LMS.repositories.RoleRepository;
 import com.LibraryManagementSystem.LMS.repositories.UserRepository;
 import com.LibraryManagementSystem.LMS.services.impl.UserServiceImpl;
@@ -24,6 +28,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -49,6 +55,9 @@ public class UserServiceImplTest {
 
     @Mock
     private UserRequestMapper userRequestMapper;
+
+    @Mock
+    private UserReturnMapper userReturnMapper;
 
     @InjectMocks
     private UserServiceImpl underTest;
@@ -280,4 +289,120 @@ public class UserServiceImplTest {
                 .mapFrom(any(SignupRequest.class));
     }
 
+    @Test
+    public void testThatFindAllUsersReturnAllTheUsers() {
+        Role role = testDataUtil.createRoleForTest();
+
+        User user = testDataUtil.createUserForTest();
+        User user1 = testDataUtil.createUserForTest1();
+        List<User> users = Arrays.asList(user, user1);
+
+        user.setRole(role);
+        user1.setRole(role);
+
+        when(userRepository.findAll()).thenReturn(users);
+        when(userReturnMapper.mapTo(user)).thenReturn(new ReturnUserDto());
+        when(userReturnMapper.mapTo(user1)).thenReturn(new ReturnUserDto());
+
+        List<ReturnUserDto> result = underTest.findAll();
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        verify(userRepository, times(1)).findAll();
+    }
+
+    @Test
+    public void testThatFindUserByIdReturnTheUserWhenUserExists() {
+        User user = testDataUtil.createUserForTest();
+
+        when(userRepository.findUserById(user.getId())).thenReturn(Optional.of(user));
+        when(userReturnMapper.mapTo(user)).thenReturn(new ReturnUserDto());
+
+        ReturnUserDto result = underTest.findUserById(user.getId());
+
+        assertNotNull(result);
+        verify(userRepository, times(1)).findUserById(user.getId());
+    }
+
+    @Test
+    public void testThatFindUserByIdThrowUserNotFoundExceptionWhenUserDoesNotExist() {
+        UserNotFoundException userNotFoundException = assertThrows(UserNotFoundException.class, () -> {
+            ReturnUserDto result = underTest.findUserById(99L);
+        });
+
+        assertNotNull(userNotFoundException);
+        verify(userRepository, times(1)).findUserById(99L);
+    }
+
+    @Test
+    public void testThatUpdateUserDataUpdateSpecificUserData() {
+        SignupRequest signupRequest = SignupRequest.builder()
+                .email("newemail@gmail.com")
+                .username("newusername")
+                .password("newpassword")
+                .build();
+
+        User user = testDataUtil.createUserForTest();
+
+        UpdateDataRequest request = UpdateDataRequest.builder()
+                .password(TestDataUtil.password)
+                .data(signupRequest)
+                .build();
+
+        when(userRepository.findUserById(user.getId())).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches(TestDataUtil.password, user.getPassword())).thenReturn(true);
+        when(passwordEncoder.encode("newpassword")).thenReturn("newpasswordencoded");
+
+        underTest.updateUserData(user.getId(), request);
+
+        assertEquals("newemail@gmail.com", user.getEmail());
+        assertEquals("newusername", user.getUsername());
+        assertEquals("newpasswordencoded", user.getPassword());
+
+        verify(userRepository, times(1)).findUserById(user.getId());
+        verify(passwordEncoder, times(1)).encode(request.getData().getPassword());
+    }
+
+    @Test
+    public void testThatUpdateUserThrowUserNotFoundExceptionWhenUserDoesNotExist() {
+        when(userRepository.findUserById(99L)).thenReturn(Optional.empty());
+
+        UserNotFoundException userNotFoundException = assertThrows(UserNotFoundException.class, () -> {
+            underTest.updateUserData(99L, new UpdateDataRequest());
+        });
+
+        assertNotNull(userNotFoundException);
+        verify(userRepository, times(1)).findUserById(99L);
+        verify(passwordEncoder, never()).matches(anyString(), anyString());
+        verify(passwordEncoder, never()).encode(anyString());
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    public void testThatUpdateUserThrowsInvalidPasswordExceptionWhenPasswordDoesNotMatch() {
+        String incorrectPassword = "wrongpassword";
+        UpdateDataRequest updateDataRequest = UpdateDataRequest.builder()
+                .password(incorrectPassword)
+                .data(SignupRequest.builder()
+                        .email("newemail@gmail.com")
+                        .username("newusername")
+                        .password("newpassword")
+                        .build())
+                .build();
+
+        User user = testDataUtil.createUserForTest1();
+
+        when(userRepository.findUserById(user.getId())).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches(incorrectPassword, user.getPassword())).thenReturn(false);
+
+        InvalidPasswordException invalidPasswordException = assertThrows(InvalidPasswordException.class, () -> {
+            underTest.updateUserData(user.getId(), updateDataRequest);
+        });
+
+        assertNotNull(invalidPasswordException);
+        verify(userRepository, times(1)).findUserById(user.getId());
+        verify(passwordEncoder, times(1)).matches(incorrectPassword, user.getPassword());
+        verify(passwordEncoder, never()).encode(anyString());
+        verify(userRepository, never()).save(any());
+    }
 }
