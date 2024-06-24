@@ -23,7 +23,6 @@ public class CategoryServiceImpl implements CategoryService {
         if (categoryRepository.existsByName(category.getName())) {
             throw new CategoryAlreadyExistException("Category with name: " + category.getName() + " already exist");
         }
-        
         categoryRepository.save(categoryRequestMapper.mapFrom(category));
     }
 }

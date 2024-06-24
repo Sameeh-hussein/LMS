@@ -56,6 +56,12 @@ public class GlobalExceptionHandler {
                 .body(ex.getMessage());
     }
 
+    @ExceptionHandler(AuthorAlreadyExistException.class)
+    public ResponseEntity<String> handleAuthorAlreadyExistsException(AuthorAlreadyExistException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ex.getMessage());
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleGenericException() {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
