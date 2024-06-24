@@ -25,6 +25,9 @@ public class Book {
     @Column(nullable = false, unique = true)
     private String isbn;
 
+    @Column(nullable = false)
+    private String publicationYear;
+
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;

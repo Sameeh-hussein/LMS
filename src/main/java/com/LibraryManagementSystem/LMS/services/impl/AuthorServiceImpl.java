@@ -23,7 +23,7 @@ public class AuthorServiceImpl implements AuthorService {
         if (authorRepository.existsByName(request.getName())) {
             throw new AuthorAlreadyExistException("Author with name " + request.getName() + " already exists");
         }
-        
+
         authorRepository.save(authorRequestMapper.mapFrom(request));
     }
 }

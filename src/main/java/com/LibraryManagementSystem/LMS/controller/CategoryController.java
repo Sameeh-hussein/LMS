@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping(value = "/api/categories")
 public class CategoryController {
@@ -19,9 +21,9 @@ public class CategoryController {
     }
 
     @PostMapping
-    public ResponseEntity<String> addCategory(@RequestBody AddCategoryDto category) {
+    public ResponseEntity<String> addCategory(@Valid @RequestBody AddCategoryDto category) {
         categoryService.addCategory(category);
-        return ResponseEntity.status(HttpStatus.OK)
+        return ResponseEntity.status(HttpStatus.CREATED)
                 .body("Category added successfully");
     }
 }
