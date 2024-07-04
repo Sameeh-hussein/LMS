@@ -62,6 +62,12 @@ public class GlobalExceptionHandler {
                 .body(ex.getMessage());
     }
 
+    @ExceptionHandler(BookAlreadyExistException.class)
+    public ResponseEntity<String> handleBookAlreadyExistException(BookAlreadyExistException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ex.getMessage());
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleGenericException() {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

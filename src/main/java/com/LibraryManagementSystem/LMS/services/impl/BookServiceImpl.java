@@ -6,6 +6,7 @@ import com.LibraryManagementSystem.LMS.domain.Category;
 import com.LibraryManagementSystem.LMS.dto.AddBookDto;
 import com.LibraryManagementSystem.LMS.dto.ReturnBookDto;
 import com.LibraryManagementSystem.LMS.exceptions.AuthorNotFoundException;
+import com.LibraryManagementSystem.LMS.exceptions.BookAlreadyExistException;
 import com.LibraryManagementSystem.LMS.exceptions.CategoryNotFoundException;
 import com.LibraryManagementSystem.LMS.mappers.impl.BookRequestMapper;
 import com.LibraryManagementSystem.LMS.mappers.impl.BookReturnMapper;
@@ -46,23 +47,26 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public void addBook(AddBookDto request) {
+        if (bookRepository.existsByTitle(request.getTitle())) {
+            throw new BookAlreadyExistException("Book with title: " + request.getTitle() + " already exist");
+        }
+        
+        if (bookRepository.existsByIsbn(request.getIsbn())) {
+            throw new BookAlreadyExistException("Book with isbn: " + request.getIsbn() + " already exist");
+        }
+
         Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new CategoryNotFoundException("Category with id: " + request.getCategoryId() + " not found"));
 
         List<Author> authors = request.getAuthorIds().stream()
-                .map(authorId -> {
-                    return authorRepository.findById(authorId)
-                            .orElseThrow(() -> new AuthorNotFoundException("Author with id: " + authorId + " not found"));
-                })
+                .map(authorId -> authorRepository.findById(authorId)
+                        .orElseThrow(() -> new AuthorNotFoundException("Author with id: " + authorId + " not found")))
                 .toList();
 
-        Book book = Book.builder()
-                .title(request.getTitle())
-                .isbn(request.getIsbn())
-                .publicationYear(request.getPublicationYear())
-                .category(category)
-                .authors(authors)
-                .build();
+        Book book = bookRequestMapper.mapFrom(request);
+        book.setId(null);
+        book.setCategory(category);
+        book.setAuthors(authors);
 
         bookRepository.save(book);
     }
