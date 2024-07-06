@@ -46,6 +46,13 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    public ReturnBookDto findById(Long bookId) {
+        return bookRepository.findById(bookId)
+                .map(bookReturnMapper::mapTo)
+                .orElseThrow(() -> new BookAlreadyExistException("not found"));
+    }
+
+    @Override
     public void addBook(AddBookDto request) {
         if (bookRepository.existsByTitle(request.getTitle())) {
             throw new BookAlreadyExistException("Book with title: " + request.getTitle() + " already exist");

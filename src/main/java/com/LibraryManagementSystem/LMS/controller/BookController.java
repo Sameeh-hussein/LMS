@@ -25,6 +25,12 @@ public class BookController {
                 .body(bookService.findAllBooks());
     }
 
+    @GetMapping(value = "{bookId}")
+    public ResponseEntity<ReturnBookDto> getBookById(@PathVariable Long bookId) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(bookService.findById(bookId));
+    }
+
     @PostMapping
     public ResponseEntity<String> addBook(@Valid @RequestBody AddBookDto request) {
         bookService.addBook(request);
