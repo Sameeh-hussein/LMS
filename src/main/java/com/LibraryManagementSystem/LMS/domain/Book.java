@@ -16,7 +16,7 @@ import java.util.List;
 @Table(name = "Books")
 public class Book {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue
     private Long id;
 
     @Column(nullable = false)
