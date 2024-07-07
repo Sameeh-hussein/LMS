@@ -13,6 +13,8 @@ import com.LibraryManagementSystem.LMS.services.UserService;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -28,25 +30,30 @@ public class UserServiceImpl implements UserService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
-    private final UserRequestMapper userRequestMapper;
     private final UserReturnMapper userReturnMapper;
+    private final AuthenticationManager authenticationManager;
 
     public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository,
                            PasswordEncoder passwordEncoder,
                            JwtUtil jwtUtil,
-                           UserRequestMapper userRequestMapper,
-                           UserReturnMapper userReturnMapper
-                           ) {
+                           UserReturnMapper userReturnMapper,
+                           AuthenticationManager authenticationManager) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
-        this.userRequestMapper = userRequestMapper;
         this.userReturnMapper = userReturnMapper;
+        this.authenticationManager = authenticationManager;
     }
 
     @Override
     public String authenticateUser(LoginRequest request) {
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(),
+                        request.getPassword()
+                )
+        );
 
         User user = userRepository.findByEmail(request.getEmail()).orElseThrow(() ->
                 new UserNotFoundException("User not found with email: " + request.getEmail()));
@@ -64,21 +71,21 @@ public class UserServiceImpl implements UserService {
             throw new UserAlreadyExistsException("User with email: " + request.getEmail() + " already exists");
         }
 
-        if (userRepository.existsByUsername(request.getUsername())) {
-            throw new UserAlreadyExistsException("User with username: " + request.getUsername() + " already exists");
-        }
-
         Optional<Role> role = roleRepository.findByName(roleName);
         if (role.isEmpty()) {
             throw new RoleNotFoundException("Role not found with name: " + roleName);
         }
 
-        User userToAdd = userRequestMapper.mapFrom(request);
-        userToAdd.setPassword(passwordEncoder.encode(request.getPassword()));
-        userToAdd.setRole(role.get());
-        userToAdd.setCreatedAt(LocalDateTime.now());
+        User user = User.builder()
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .role(role.get())
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
+                .createdAt(LocalDateTime.now())
+                .build();
 
-        userRepository.save(userToAdd);
+        userRepository.save(user);
     }
 
     @Override
@@ -105,7 +112,8 @@ public class UserServiceImpl implements UserService {
         }
 
         user.setEmail(request.getData().getEmail());
-        user.setUsername(request.getData().getUsername());
+        user.setFirstName(request.getData().getFirstName());
+        user.setLastName(request.getData().getLastName());
         user.setPassword(passwordEncoder.encode(request.getData().getPassword()));
 
         userRepository.save(user);
