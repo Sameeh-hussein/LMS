@@ -7,6 +7,7 @@ import com.LibraryManagementSystem.LMS.dto.AddBookDto;
 import com.LibraryManagementSystem.LMS.dto.ReturnBookDto;
 import com.LibraryManagementSystem.LMS.exceptions.AuthorNotFoundException;
 import com.LibraryManagementSystem.LMS.exceptions.BookAlreadyExistException;
+import com.LibraryManagementSystem.LMS.exceptions.BookNotFoundException;
 import com.LibraryManagementSystem.LMS.exceptions.CategoryNotFoundException;
 import com.LibraryManagementSystem.LMS.mappers.impl.BookRequestMapper;
 import com.LibraryManagementSystem.LMS.mappers.impl.BookReturnMapper;
@@ -49,7 +50,7 @@ public class BookServiceImpl implements BookService {
     public ReturnBookDto findById(Long bookId) {
         return bookRepository.findById(bookId)
                 .map(bookReturnMapper::mapTo)
-                .orElseThrow(() -> new BookAlreadyExistException("not found"));
+                .orElseThrow(() -> new BookNotFoundException("Book with id: " + bookId + " not exist"));
     }
 
     @Override
@@ -57,7 +58,7 @@ public class BookServiceImpl implements BookService {
         if (bookRepository.existsByTitle(request.getTitle())) {
             throw new BookAlreadyExistException("Book with title: " + request.getTitle() + " already exist");
         }
-        
+
         if (bookRepository.existsByIsbn(request.getIsbn())) {
             throw new BookAlreadyExistException("Book with isbn: " + request.getIsbn() + " already exist");
         }
