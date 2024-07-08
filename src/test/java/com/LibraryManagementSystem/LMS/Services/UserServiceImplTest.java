@@ -24,6 +24,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -59,6 +61,9 @@ public class UserServiceImplTest {
     @Mock
     private UserReturnMapper userReturnMapper;
 
+    @Mock
+    private AuthenticationManager authenticationManager;
+
     @InjectMocks
     private UserServiceImpl underTest;
 
@@ -79,6 +84,9 @@ public class UserServiceImplTest {
         when(jwtUtil.generateToken(user))
                 .thenReturn("token");
 
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+                .thenReturn(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+
         String token = underTest.authenticateUser(loginRequest);
 
         assertNotNull(token);
@@ -89,14 +97,16 @@ public class UserServiceImplTest {
                 .findByEmail(user.getEmail());
 
         verify(passwordEncoder, times(1))
-                .matches(TestDataUtil.password, user.getPassword());
+                .matches(loginRequest.getPassword(), user.getPassword());
 
         verify(jwtUtil, times(1))
                 .generateToken(user);
-    }
 
+        verify(authenticationManager, times(1))
+                .authenticate(any(UsernamePasswordAuthenticationToken.class));
+    }
     @Test
-    public void testThatAuthenticateUserThrowUserNotFoundExceptionWhenUserNameNotFound() {
+    public void testThatAuthenticateUserThrowUserNotFoundExceptionWhenUserNotFound() {
         LoginRequest loginRequest = testDataUtil.createUnValidLoginRequestForTest();
 
         when(userRepository.findByEmail(loginRequest.getEmail()))
@@ -160,9 +170,6 @@ public class UserServiceImplTest {
         when(userRepository.existsByEmail(signupRequest.getEmail()))
                 .thenReturn(false);
 
-        when(userRepository.existsByUsername(signupRequest.getUsername()))
-                .thenReturn(false);
-
         when(roleRepository.findByName("ROLE_MEMBER"))
                 .thenReturn(Optional.of(new Role()));
 
@@ -176,9 +183,6 @@ public class UserServiceImplTest {
 
         verify(userRepository, times(1))
                 .existsByEmail(signupRequest.getEmail());
-
-        verify(userRepository, times(1))
-                .existsByUsername(signupRequest.getUsername());
 
         verify(roleRepository, times(1))
                 .findByName("ROLE_MEMBER");
@@ -209,41 +213,6 @@ public class UserServiceImplTest {
         verify(userRepository, times(1))
                 .existsByEmail(signupRequest.getEmail());
 
-        verify(userRepository, never())
-                .existsByUsername(anyString());
-
-        verify(roleRepository, never())
-                .findByName(anyString());
-
-        verify(passwordEncoder, never())
-                .encode(anyString());
-
-        verify(userRequestMapper, never())
-                .mapFrom(any(SignupRequest.class));
-    }
-
-    @Test
-    public void testThatRegisterUserThrowUserAlreadyExistsExceptionWhenUserNameExist() {
-        SignupRequest signupRequest = testDataUtil.createSignupRequestForTest();
-
-        when(userRepository.existsByEmail(signupRequest.getEmail()))
-                .thenReturn(false);
-
-        when(userRepository.existsByUsername(signupRequest.getUsername()))
-                .thenReturn(true);
-
-        UserAlreadyExistsException userAlreadyExistsException = assertThrows(UserAlreadyExistsException.class, () -> {
-            underTest.registerUserWithRole(signupRequest, "ROLE_MEMBER");
-        });
-
-        assertNotNull(userAlreadyExistsException);
-
-        verify(userRepository, times(1))
-                .existsByEmail(signupRequest.getEmail());
-
-        verify(userRepository, times(1))
-                .existsByUsername(signupRequest.getUsername());
-
         verify(roleRepository, never())
                 .findByName(anyString());
 
@@ -261,9 +230,6 @@ public class UserServiceImplTest {
         when(userRepository.existsByEmail(signupRequest.getEmail()))
                 .thenReturn(false);
 
-        when(userRepository.existsByUsername(signupRequest.getUsername()))
-                .thenReturn(false);
-
         when(roleRepository.findByName("ROLE_MEMBER"))
                 .thenReturn(Optional.empty());
 
@@ -275,9 +241,6 @@ public class UserServiceImplTest {
 
         verify(userRepository, times(1))
                 .existsByEmail(signupRequest.getEmail());
-
-        verify(userRepository, times(1))
-                .existsByUsername(signupRequest.getUsername());
 
         verify(roleRepository, times(1))
                 .findByName("ROLE_MEMBER");
@@ -338,7 +301,8 @@ public class UserServiceImplTest {
     public void testThatUpdateUserDataUpdateSpecificUserData() {
         SignupRequest signupRequest = SignupRequest.builder()
                 .email("newemail@gmail.com")
-                .username("newusername")
+                .firstName("newfirstname")
+                .lastName("newlastname")
                 .password("newpassword")
                 .build();
 
@@ -356,7 +320,8 @@ public class UserServiceImplTest {
         underTest.updateUserData(user.getId(), request);
 
         assertEquals("newemail@gmail.com", user.getEmail());
-        assertEquals("newusername", user.getUsername());
+        assertEquals("newfirstname", user.getFirstName());
+        assertEquals("newlastname", user.getLastName());
         assertEquals("newpasswordencoded", user.getPassword());
 
         verify(userRepository, times(1)).findUserById(user.getId());
@@ -385,7 +350,8 @@ public class UserServiceImplTest {
                 .password(incorrectPassword)
                 .data(SignupRequest.builder()
                         .email("newemail@gmail.com")
-                        .username("newusername")
+                        .firstName("newfirstname")
+                        .lastName("newlastname")
                         .password("newpassword")
                         .build())
                 .build();

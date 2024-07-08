@@ -85,22 +85,6 @@ public class UserRepositoryIntegrationTest {
     }
 
     @Test
-    public void testThatUserExistByUserName() {
-        User user = testDataUtil.createUserForTest();
-        Role role = testDataUtil.createRoleForTest();
-
-        roleRepository.save(role);
-
-        user.setRole(role);
-
-        underTest.save(user);
-
-        Boolean result = underTest.existsByUsername("Ali-Ahmad");
-
-        assertThat(result).isTrue();
-    }
-
-    @Test
     public void testThatUserCanBeNotExistByEmail() {
         Boolean result = underTest.existsByEmail("notexist@gmail.com");
 

@@ -4,6 +4,7 @@ import com.LibraryManagementSystem.LMS.TestDataUtil;
 import com.LibraryManagementSystem.LMS.domain.Role;
 import com.LibraryManagementSystem.LMS.dto.AddRoleDto;
 import com.LibraryManagementSystem.LMS.dto.ReturnRoleDto;
+import com.LibraryManagementSystem.LMS.exceptions.RoleAlreadyExistsException;
 import com.LibraryManagementSystem.LMS.repositories.RoleRepository;
 import com.LibraryManagementSystem.LMS.services.RoleService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,7 +20,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.Arrays;
 import java.util.List;
@@ -52,21 +56,20 @@ public class RoleControllerTest {
         String roleJson = objectMapper.writeValueAsString(addRoleDto);
 
         mockMvc.perform(
-                MockMvcRequestBuilders.post("/api/roles")
+                post("/api/roles")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(roleJson)
         ).andExpect(
-                MockMvcResultMatchers.status().isCreated()
+                status().isCreated()
         );
     }
 
     @Test
-    public void testThatAddRoleReturnHttp209CreatedWhenRoleExist() throws Exception {
+    public void testThatAddRoleReturnHttp409ConflictWhenRoleExist() throws Exception {
         AddRoleDto addRoleDto = AddRoleDto.builder().name("ROLE_MEMBER").build();
 
-        Role role = testDataUtil.createRoleForTest();
-
-        roleRepository.save(role);
+        doThrow(new RoleAlreadyExistsException("Role with name: ROLE_MEMBER already exists"))
+                .when(roleService).addNewRole(any(AddRoleDto.class));
 
         String roleJson = objectMapper.writeValueAsString(addRoleDto);
 
@@ -92,7 +95,7 @@ public class RoleControllerTest {
                 MockMvcRequestBuilders.get("/api/roles")
                         .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(
-                MockMvcResultMatchers.status().isOk()
+                status().isOk()
         ).andExpect(
                 MockMvcResultMatchers.jsonPath("$.length()").value(roles.size())
         ).andExpect(
