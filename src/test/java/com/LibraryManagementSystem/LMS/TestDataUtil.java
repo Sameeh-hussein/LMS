@@ -4,27 +4,25 @@ import com.LibraryManagementSystem.LMS.auth.LoginRequest;
 import com.LibraryManagementSystem.LMS.auth.SignupRequest;
 import com.LibraryManagementSystem.LMS.domain.Role;
 import com.LibraryManagementSystem.LMS.domain.User;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 
 @Component
+@RequiredArgsConstructor
 public class TestDataUtil {
 
     private final PasswordEncoder passwordEncoder;
 
     public static String password = "Aa12345";
 
-    public TestDataUtil(PasswordEncoder passwordEncoder) {
-        this.passwordEncoder = passwordEncoder;
-    }
-
     public User createUserForTest() {
         return User.builder()
                 .id(1L)
-                .username("Ali-Ahmad")
+                .firstName("Ali")
+                .lastName("Ahmad")
                 .email("ali@gmail.com")
                 .password(passwordEncoder.encode(password))
                 .createdAt(LocalDateTime.now())
@@ -34,7 +32,8 @@ public class TestDataUtil {
     public User createUserForTest1(){
         return User.builder()
                 .id(2L)
-                .username("Rami-Ghassan")
+                .firstName("Rami")
+                .lastName("Ghassan")
                 .email("rami@gmail.com")
                 .password(passwordEncoder.encode(password))
                 .createdAt(LocalDateTime.now())
@@ -51,7 +50,8 @@ public class TestDataUtil {
     public User createUserForTestWithoutCreatedAt() {
         return User.builder()
                 .id(1L)
-                .username("Ali-Ahmad")
+                .firstName("Ali")
+                .lastName("Ahmad")
                 .email("ali@gmail.com")
                 .password(password)
                 .build();
@@ -74,7 +74,8 @@ public class TestDataUtil {
     public SignupRequest createSignupRequestForTest() {
         return SignupRequest.builder()
                 .email("ali@gmail.com")
-                .username("Ali-Ahmad")
+                .firstName("Ali")
+                .lastName("Ahmad")
                 .password(password)
                 .build();
     }
