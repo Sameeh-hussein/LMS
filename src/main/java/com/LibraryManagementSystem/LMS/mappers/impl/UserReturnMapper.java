@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class UserReturnMapper implements Mapper<User, ReturnUserDto> {
-
     private final ModelMapper modelMapper;
 
     public UserReturnMapper(ModelMapper modelMapper) {

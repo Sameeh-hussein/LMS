@@ -10,6 +10,7 @@ import com.LibraryManagementSystem.LMS.mappers.impl.UserReturnMapper;
 import com.LibraryManagementSystem.LMS.repositories.RoleRepository;
 import com.LibraryManagementSystem.LMS.repositories.UserRepository;
 import com.LibraryManagementSystem.LMS.services.UserService;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
@@ -32,19 +34,6 @@ public class UserServiceImpl implements UserService {
     private final JwtUtil jwtUtil;
     private final UserReturnMapper userReturnMapper;
     private final AuthenticationManager authenticationManager;
-
-    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository,
-                           PasswordEncoder passwordEncoder,
-                           JwtUtil jwtUtil,
-                           UserReturnMapper userReturnMapper,
-                           AuthenticationManager authenticationManager) {
-        this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtUtil = jwtUtil;
-        this.userReturnMapper = userReturnMapper;
-        this.authenticationManager = authenticationManager;
-    }
 
     @Override
     public String authenticateUser(LoginRequest request) {

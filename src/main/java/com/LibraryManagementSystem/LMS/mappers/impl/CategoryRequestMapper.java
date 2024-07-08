@@ -3,15 +3,14 @@ package com.LibraryManagementSystem.LMS.mappers.impl;
 import com.LibraryManagementSystem.LMS.domain.Category;
 import com.LibraryManagementSystem.LMS.dto.AddCategoryDto;
 import com.LibraryManagementSystem.LMS.mappers.Mapper;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class CategoryRequestMapper implements Mapper<Category, AddCategoryDto> {
     private final ModelMapper modelMapper;
-    public CategoryRequestMapper(ModelMapper modelMapper) {
-        this.modelMapper = modelMapper;
-    }
 
     @Override
     public AddCategoryDto mapTo(Category category) {

@@ -15,29 +15,20 @@ import com.LibraryManagementSystem.LMS.repositories.AuthorRepository;
 import com.LibraryManagementSystem.LMS.repositories.BookRepository;
 import com.LibraryManagementSystem.LMS.repositories.CategoryRepository;
 import com.LibraryManagementSystem.LMS.services.BookService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
     private final BookReturnMapper bookReturnMapper;
     private final BookRequestMapper bookRequestMapper;
     private final CategoryRepository categoryRepository;
     private final AuthorRepository authorRepository;
-
-    public BookServiceImpl(BookRepository bookRepository,
-                           BookReturnMapper bookReturnMapper,
-                           BookRequestMapper bookRequestMapper,
-                           CategoryRepository categoryRepository, AuthorRepository authorRepository) {
-        this.bookRepository = bookRepository;
-        this.bookReturnMapper = bookReturnMapper;
-        this.bookRequestMapper = bookRequestMapper;
-        this.categoryRepository = categoryRepository;
-        this.authorRepository = authorRepository;
-    }
 
     @Override
     public List<ReturnBookDto> findAllBooks() {
