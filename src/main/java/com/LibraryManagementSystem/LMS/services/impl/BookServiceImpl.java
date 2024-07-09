@@ -16,9 +16,11 @@ import com.LibraryManagementSystem.LMS.repositories.BookRepository;
 import com.LibraryManagementSystem.LMS.repositories.CategoryRepository;
 import com.LibraryManagementSystem.LMS.services.BookService;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,6 +32,7 @@ public class BookServiceImpl implements BookService {
     private final BookRequestMapper bookRequestMapper;
     private final CategoryRepository categoryRepository;
     private final AuthorRepository authorRepository;
+    private final ModelMapper modelMapper;
 
     @Override
     public List<ReturnBookDto> findAllBooks() {
@@ -43,6 +46,34 @@ public class BookServiceImpl implements BookService {
         return bookRepository.findById(bookId)
                 .map(bookReturnMapper::mapTo)
                 .orElseThrow(() -> new BookNotFoundException("Book with id: " + bookId + " not exist"));
+    }
+
+    @Override
+    public void updateBook(Long bookId, @NotNull AddBookDto request) {
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new BookNotFoundException("Book with id: " + bookId + " not exist"));
+
+        if (bookRepository.existsByIsbnAndIdNot(request.getIsbn(), bookId)) {
+            throw new BookAlreadyExistException("Book with isbn: " + request.getIsbn() + " already exist");
+        }
+
+        if (bookRepository.existsByTitleAndIdNot(request.getTitle(), bookId)) {
+            throw new BookAlreadyExistException("Book with title: " + request.getTitle() + " already exist");
+        }
+
+        Category category = categoryRepository.findById(request.getCategoryId())
+                .orElseThrow(() -> new CategoryNotFoundException("Category with id: " + request.getCategoryId() + " not exist"));
+
+        List<Author> authors = request.getAuthorIds().stream()
+                .map(authorId -> authorRepository.findById(authorId)
+                        .orElseThrow(() -> new AuthorNotFoundException("Author with id: " + authorId + " not exist")))
+                .toList();
+
+        modelMapper.map(request, book);
+        book.setCategory(category);
+        book.setAuthors(new ArrayList<>(authors));
+
+        bookRepository.save(book);
     }
 
     @Override

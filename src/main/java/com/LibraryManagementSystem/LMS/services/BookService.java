@@ -10,5 +10,7 @@ public interface BookService {
 
     void addBook(AddBookDto request);
 
-    ReturnBookDto findById(Long bookid);
+    ReturnBookDto findById(Long bookId);
+
+    void updateBook(Long bookId, AddBookDto request);
 }

@@ -35,4 +35,11 @@ public class BookController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body("Book added successfully");
     }
+
+    @PutMapping(value = "{bookId}")
+    public ResponseEntity<String> updateBook(@PathVariable Long bookId, @Valid @RequestBody AddBookDto request) {
+        bookService.updateBook(bookId, request);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body("Book updated successfully");
+    }
 }
