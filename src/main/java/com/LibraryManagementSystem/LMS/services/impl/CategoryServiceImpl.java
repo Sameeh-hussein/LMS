@@ -3,6 +3,7 @@ package com.LibraryManagementSystem.LMS.services.impl;
 import com.LibraryManagementSystem.LMS.dto.AddCategoryDto;
 import com.LibraryManagementSystem.LMS.dto.ReturnCategoryDto;
 import com.LibraryManagementSystem.LMS.exceptions.CategoryAlreadyExistException;
+import com.LibraryManagementSystem.LMS.exceptions.CategoryNotFoundException;
 import com.LibraryManagementSystem.LMS.mappers.impl.CategoryRequestMapper;
 import com.LibraryManagementSystem.LMS.mappers.impl.CategoryReturnMapper;
 import com.LibraryManagementSystem.LMS.repositories.CategoryRepository;
@@ -35,5 +36,12 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryRepository.findAll().stream()
                 .map(categoryReturnMapper::mapTo)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public ReturnCategoryDto findCategoryById(Long categoryId) {
+        return categoryRepository.findById(categoryId)
+                .map(categoryReturnMapper::mapTo)
+                .orElseThrow(() -> new CategoryNotFoundException("Category with id: " + categoryId + " not found"));
     }
 }

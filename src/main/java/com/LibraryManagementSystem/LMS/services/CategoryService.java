@@ -9,4 +9,6 @@ public interface CategoryService {
     void addCategory(AddCategoryDto category);
 
     List<ReturnCategoryDto> findAllCategories();
+
+    ReturnCategoryDto findCategoryById(Long categoryId);
 }

@@ -23,6 +23,12 @@ public class CategoryController {
                 .body(categoryService.findAllCategories());
     }
 
+    @GetMapping(value = "{categoryId}")
+    public ResponseEntity<ReturnCategoryDto> getCategoryById(@PathVariable Long categoryId) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(categoryService.findCategoryById(categoryId));
+    }
+
     @PostMapping
     public ResponseEntity<String> addCategory(@Valid @RequestBody AddCategoryDto category) {
         categoryService.addCategory(category);
