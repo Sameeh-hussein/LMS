@@ -77,6 +77,14 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    public void removeBook(Long bookId) {
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new BookNotFoundException("Book with id: " + bookId + " not exist"));
+
+        bookRepository.delete(book);
+    }
+
+    @Override
     public void addBook(@NotNull AddBookDto request) {
         if (bookRepository.existsByTitle(request.getTitle())) {
             throw new BookAlreadyExistException("Book with title: " + request.getTitle() + " already exist");

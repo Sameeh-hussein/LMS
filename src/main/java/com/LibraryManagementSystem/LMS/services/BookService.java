@@ -13,4 +13,6 @@ public interface BookService {
     ReturnBookDto findById(Long bookId);
 
     void updateBook(Long bookId, AddBookDto request);
+
+    void removeBook(Long bookId);
 }
