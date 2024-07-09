@@ -8,6 +8,8 @@ import com.LibraryManagementSystem.LMS.services.AuthorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.validation.constraints.NotNull;
+
 @Service
 @RequiredArgsConstructor
 public class AuthorServiceImpl implements AuthorService {
@@ -15,7 +17,7 @@ public class AuthorServiceImpl implements AuthorService {
     private final AuthorRequestMapper authorRequestMapper;
 
     @Override
-    public void addAuthor(AddAuthorDto request) {
+    public void addAuthor(@NotNull AddAuthorDto request) {
         if (authorRepository.existsByName(request.getName())) {
             throw new AuthorAlreadyExistException("Author with name " + request.getName() + " already exists");
         }

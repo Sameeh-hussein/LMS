@@ -18,6 +18,7 @@ import com.LibraryManagementSystem.LMS.services.BookService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,7 +46,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public void addBook(AddBookDto request) {
+    public void addBook(@NotNull AddBookDto request) {
         if (bookRepository.existsByTitle(request.getTitle())) {
             throw new BookAlreadyExistException("Book with title: " + request.getTitle() + " already exist");
         }

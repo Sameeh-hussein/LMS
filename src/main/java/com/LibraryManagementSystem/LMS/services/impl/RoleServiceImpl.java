@@ -11,6 +11,7 @@ import com.LibraryManagementSystem.LMS.services.RoleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -23,7 +24,7 @@ public class RoleServiceImpl implements RoleService {
     private final RoleReturnMapper roleReturnMapper;
 
     @Override
-    public void addNewRole(AddRoleDto request) {
+    public void addNewRole(@NotNull AddRoleDto request) {
 
         if (roleRepository.existsByName(request.getName())) {
             throw new RoleAlreadyExistsException("Role with name: " + request.getName() + " already exists");

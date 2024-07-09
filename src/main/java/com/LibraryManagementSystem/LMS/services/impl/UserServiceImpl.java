@@ -11,15 +11,13 @@ import com.LibraryManagementSystem.LMS.repositories.RoleRepository;
 import com.LibraryManagementSystem.LMS.repositories.UserRepository;
 import com.LibraryManagementSystem.LMS.services.UserService;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -38,7 +36,7 @@ public class UserServiceImpl implements UserService {
     private final AuthenticationManager authenticationManager;
 
     @Override
-    public String authenticateUser(LoginRequest request) {
+    public String authenticateUser(@NotNull LoginRequest request) {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -61,7 +59,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void registerUserWithRole(SignupRequest request, String roleName) {
+    public void registerUserWithRole(@NotNull SignupRequest request, String roleName) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new UserAlreadyExistsException("User with email: " + request.getEmail() + " already exists");
         }
@@ -94,7 +92,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateUserData(Long userId, UpdateDataRequest request) {
+    public void updateUserData(Long userId, @NotNull UpdateDataRequest request) {
         User user = userRepository.findUserById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User with id: " + userId + "not exist"));
 

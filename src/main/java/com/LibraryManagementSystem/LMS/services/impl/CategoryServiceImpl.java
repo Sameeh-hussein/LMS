@@ -8,6 +8,8 @@ import com.LibraryManagementSystem.LMS.services.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.validation.constraints.NotNull;
+
 @Service
 @RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
@@ -15,7 +17,7 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryRequestMapper categoryRequestMapper;
 
     @Override
-    public void addCategory(AddCategoryDto category) {
+    public void addCategory(@NotNull AddCategoryDto category) {
         if (categoryRepository.existsByName(category.getName())) {
             throw new CategoryAlreadyExistException("Category with name: " + category.getName() + " already exist");
         }
