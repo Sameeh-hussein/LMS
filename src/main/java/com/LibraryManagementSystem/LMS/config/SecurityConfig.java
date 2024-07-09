@@ -38,17 +38,24 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
+
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
                         .requestMatchers("/api/auth/**",
                                 "/api/roles/**",
                                 "/api/users/**").permitAll()
+
                         .requestMatchers(HttpMethod.POST, "/api/Books",
                                 "/api/authors",
                                 "/api/categories").hasRole("LIBRARIAN")
+
                         .requestMatchers(HttpMethod.PUT, "/api/Books/").hasRole("LIBRARIAN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/Books/").hasRole("LIBRARIAN")
+
+                        .requestMatchers(HttpMethod.DELETE, "/api/Books/",
+                                "/api/categories/").hasRole("LIBRARIAN")
+
                         .requestMatchers(HttpMethod.GET, "/api/Books/**",
                                 "/api/categories/**").permitAll()
+
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sessionManagement -> sessionManagement

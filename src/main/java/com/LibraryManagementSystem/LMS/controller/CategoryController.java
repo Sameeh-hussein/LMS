@@ -35,4 +35,11 @@ public class CategoryController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body("Category added successfully");
     }
+
+    @DeleteMapping(value = "{categoryId}")
+    public ResponseEntity<String> deleteCategory(@PathVariable Long categoryId) {
+        categoryService.removeCategory(categoryId);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body("Category deleted successfully");
+    }
 }

@@ -11,4 +11,6 @@ public interface CategoryService {
     List<ReturnCategoryDto> findAllCategories();
 
     ReturnCategoryDto findCategoryById(Long categoryId);
+
+    void removeCategory(Long categoryId);
 }
