@@ -30,4 +30,10 @@ public class RoleController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(roleService.findAll());
     }
+
+    @GetMapping(value = "{roleId}")
+    public ResponseEntity<ReturnRoleDto> getRole(@PathVariable Long roleId) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(roleService.findRoleById(roleId));
+    }
 }

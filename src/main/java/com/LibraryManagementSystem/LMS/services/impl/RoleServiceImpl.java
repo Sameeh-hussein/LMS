@@ -4,6 +4,7 @@ import com.LibraryManagementSystem.LMS.dto.AddRoleDto;
 import com.LibraryManagementSystem.LMS.dto.ReturnRoleDto;
 import com.LibraryManagementSystem.LMS.domain.Role;
 import com.LibraryManagementSystem.LMS.exceptions.RoleAlreadyExistsException;
+import com.LibraryManagementSystem.LMS.exceptions.RoleNotFoundException;
 import com.LibraryManagementSystem.LMS.mappers.impl.RoleRequestMapper;
 import com.LibraryManagementSystem.LMS.mappers.impl.RoleReturnMapper;
 import com.LibraryManagementSystem.LMS.repositories.RoleRepository;
@@ -40,5 +41,12 @@ public class RoleServiceImpl implements RoleService {
         return roleRepository.findAll().stream()
                 .map(roleReturnMapper::mapTo)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public ReturnRoleDto findRoleById(Long roleId) {
+        return roleRepository.findById(roleId)
+                .map(roleReturnMapper::mapTo)
+                .orElseThrow(() -> new RoleNotFoundException("Role with id: " + roleId + " not found"));
     }
 }

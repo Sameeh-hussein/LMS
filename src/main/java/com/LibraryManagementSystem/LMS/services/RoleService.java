@@ -11,4 +11,6 @@ public interface RoleService {
     void addNewRole(AddRoleDto request);
 
     List<ReturnRoleDto> findAll();
+
+    ReturnRoleDto findRoleById(Long roleId);
 }
