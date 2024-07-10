@@ -3,6 +3,7 @@ package com.LibraryManagementSystem.LMS.services.impl;
 import com.LibraryManagementSystem.LMS.dto.AddAuthorDto;
 import com.LibraryManagementSystem.LMS.dto.ReturnAuthorDto;
 import com.LibraryManagementSystem.LMS.exceptions.AuthorAlreadyExistException;
+import com.LibraryManagementSystem.LMS.exceptions.AuthorNotFoundException;
 import com.LibraryManagementSystem.LMS.mappers.impl.AuthorRequestMapper;
 import com.LibraryManagementSystem.LMS.mappers.impl.AuthorReturnMapper;
 import com.LibraryManagementSystem.LMS.repositories.AuthorRepository;
@@ -35,5 +36,12 @@ public class AuthorServiceImpl implements AuthorService {
         return authorRepository.findAll().stream()
                 .map(authorReturnMapper::mapTo)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public ReturnAuthorDto findAuthorById(Long authorId) {
+        return authorRepository.findById(authorId)
+                .map(authorReturnMapper::mapTo)
+                .orElseThrow(() -> new AuthorNotFoundException("Author with id " + authorId + " not found"));
     }
 }

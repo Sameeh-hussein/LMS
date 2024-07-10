@@ -10,4 +10,6 @@ public interface AuthorService {
     void addAuthor(AddAuthorDto request);
 
     List<ReturnAuthorDto> findAllAuthors();
+
+    ReturnAuthorDto findAuthorById(Long authorId);
 }

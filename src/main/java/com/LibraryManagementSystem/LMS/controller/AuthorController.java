@@ -24,6 +24,12 @@ public class AuthorController {
                 .body(authorService.findAllAuthors());
     }
 
+    @GetMapping(value = "{authorId}")
+    public ResponseEntity<ReturnAuthorDto> getAuthorById(@PathVariable Long authorId) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(authorService.findAuthorById(authorId));
+    }
+
     @PostMapping
     public ResponseEntity<String> addAuthor(@Valid @RequestBody AddAuthorDto request) {
         authorService.addAuthor(request);
