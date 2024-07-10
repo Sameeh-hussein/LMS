@@ -20,7 +20,6 @@ public class RoleController {
     @PostMapping
     public ResponseEntity<String> addRole(@Valid @RequestBody AddRoleDto request) {
         roleService.addNewRole(request);
-
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body("Role added successfully");
     }
