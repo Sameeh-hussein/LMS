@@ -57,4 +57,18 @@ public class AuthorServiceImpl implements AuthorService {
 
         authorRepository.delete(author);
     }
+
+    @Override
+    public void updateAuthor(Long authorId, @NotNull AddAuthorDto request) {
+        Author author = authorRepository.findById(authorId)
+                .orElseThrow(() -> new AuthorNotFoundException("Author with id " + authorId + " not found"));
+
+        if (authorRepository.existsByNameAndIdNot(request.getName(), authorId)) {
+            throw new AuthorAlreadyExistException("Author with name " + request.getName() + " already exists");
+        }
+
+        author.setName(request.getName());
+
+        authorRepository.save(author);
+    }
 }

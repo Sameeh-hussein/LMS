@@ -43,4 +43,11 @@ public class AuthorController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body("Author deleted successfully");
     }
+
+    @PutMapping(value = "{authorId}")
+    public ResponseEntity<String> updateAuthor(@PathVariable Long authorId, @Valid @RequestBody AddAuthorDto request) {
+        authorService.updateAuthor(authorId, request);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body("Author updated successfully");
+    }
 }

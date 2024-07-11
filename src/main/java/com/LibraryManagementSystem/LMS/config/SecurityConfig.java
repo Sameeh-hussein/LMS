@@ -48,7 +48,8 @@ public class SecurityConfig {
                                 "/api/authors",
                                 "/api/categories").hasRole("LIBRARIAN")
 
-                        .requestMatchers(HttpMethod.PUT, "/api/Books/").hasRole("LIBRARIAN")
+                        .requestMatchers(HttpMethod.PUT, "/api/Books/",
+                                "/api/authors/").hasRole("LIBRARIAN")
 
                         .requestMatchers(HttpMethod.DELETE, "/api/Books/",
                                 "/api/categories/",
