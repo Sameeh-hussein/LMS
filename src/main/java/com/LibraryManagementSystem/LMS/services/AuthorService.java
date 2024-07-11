@@ -12,4 +12,6 @@ public interface AuthorService {
     List<ReturnAuthorDto> findAllAuthors();
 
     ReturnAuthorDto findAuthorById(Long authorId);
+
+    void removeAuthor(Long authorId);
 }

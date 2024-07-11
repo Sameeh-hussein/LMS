@@ -36,4 +36,11 @@ public class AuthorController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body("Author added successfully");
     }
+
+    @DeleteMapping(value = "{authorId}")
+    public ResponseEntity<String> deleteAuthor(@PathVariable Long authorId) {
+        authorService.removeAuthor(authorId);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body("Author deleted successfully");
+    }
 }
