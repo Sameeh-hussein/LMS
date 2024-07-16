@@ -9,14 +9,12 @@ import com.LibraryManagementSystem.LMS.exceptions.AuthorNotFoundException;
 import com.LibraryManagementSystem.LMS.exceptions.BookAlreadyExistException;
 import com.LibraryManagementSystem.LMS.exceptions.BookNotFoundException;
 import com.LibraryManagementSystem.LMS.exceptions.CategoryNotFoundException;
-import com.LibraryManagementSystem.LMS.mappers.impl.BookRequestMapper;
 import com.LibraryManagementSystem.LMS.mappers.impl.BookReturnMapper;
 import com.LibraryManagementSystem.LMS.repositories.AuthorRepository;
 import com.LibraryManagementSystem.LMS.repositories.BookRepository;
 import com.LibraryManagementSystem.LMS.repositories.CategoryRepository;
 import com.LibraryManagementSystem.LMS.services.BookService;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import javax.validation.constraints.NotNull;
@@ -29,10 +27,8 @@ import java.util.stream.Collectors;
 public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
     private final BookReturnMapper bookReturnMapper;
-    private final BookRequestMapper bookRequestMapper;
     private final CategoryRepository categoryRepository;
     private final AuthorRepository authorRepository;
-    private final ModelMapper modelMapper;
 
     @Override
     public List<ReturnBookDto> findAllBooks() {
@@ -69,7 +65,9 @@ public class BookServiceImpl implements BookService {
                         .orElseThrow(() -> new AuthorNotFoundException("Author with id: " + authorId + " not exist")))
                 .toList();
 
-        modelMapper.map(request, book);
+        book.setTitle(request.getTitle());
+        book.setIsbn(request.getIsbn());
+        book.setPublicationYear(request.getPublicationYear());
         book.setCategory(category);
         book.setAuthors(new ArrayList<>(authors));
 
@@ -102,10 +100,13 @@ public class BookServiceImpl implements BookService {
                         .orElseThrow(() -> new AuthorNotFoundException("Author with id: " + authorId + " not found")))
                 .toList();
 
-        Book book = bookRequestMapper.mapFrom(request);
-        book.setId(null);
-        book.setCategory(category);
-        book.setAuthors(authors);
+        Book book = Book.builder()
+                .title(request.getTitle())
+                .isbn(request.getIsbn())
+                .publicationYear(request.getPublicationYear())
+                .category(category)
+                .authors(authors)
+                .build();
 
         bookRepository.save(book);
     }
