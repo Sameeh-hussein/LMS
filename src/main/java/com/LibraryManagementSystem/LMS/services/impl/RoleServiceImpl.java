@@ -9,12 +9,11 @@ import com.LibraryManagementSystem.LMS.mappers.impl.RoleRequestMapper;
 import com.LibraryManagementSystem.LMS.mappers.impl.RoleReturnMapper;
 import com.LibraryManagementSystem.LMS.repositories.RoleRepository;
 import com.LibraryManagementSystem.LMS.services.RoleService;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import javax.validation.constraints.NotNull;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service

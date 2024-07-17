@@ -14,10 +14,10 @@ import com.LibraryManagementSystem.LMS.repositories.AuthorRepository;
 import com.LibraryManagementSystem.LMS.repositories.BookRepository;
 import com.LibraryManagementSystem.LMS.repositories.CategoryRepository;
 import com.LibraryManagementSystem.LMS.services.BookService;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;

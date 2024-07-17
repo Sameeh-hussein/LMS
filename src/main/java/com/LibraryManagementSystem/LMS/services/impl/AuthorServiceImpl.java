@@ -9,10 +9,10 @@ import com.LibraryManagementSystem.LMS.mappers.impl.AuthorRequestMapper;
 import com.LibraryManagementSystem.LMS.mappers.impl.AuthorReturnMapper;
 import com.LibraryManagementSystem.LMS.repositories.AuthorRepository;
 import com.LibraryManagementSystem.LMS.services.AuthorService;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.stream.Collectors;
 

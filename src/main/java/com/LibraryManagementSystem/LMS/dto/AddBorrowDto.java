@@ -1,12 +1,12 @@
 package com.LibraryManagementSystem.LMS.dto;
 
 import com.LibraryManagementSystem.LMS.validations.ValidBorrowDates;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
 
 @Data

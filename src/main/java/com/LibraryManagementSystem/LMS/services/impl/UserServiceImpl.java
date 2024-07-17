@@ -10,6 +10,7 @@ import com.LibraryManagementSystem.LMS.mappers.impl.UserReturnMapper;
 import com.LibraryManagementSystem.LMS.repositories.RoleRepository;
 import com.LibraryManagementSystem.LMS.repositories.UserRepository;
 import com.LibraryManagementSystem.LMS.services.UserService;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
@@ -17,7 +18,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;

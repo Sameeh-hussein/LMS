@@ -3,12 +3,12 @@ package com.LibraryManagementSystem.LMS.controller;
 import com.LibraryManagementSystem.LMS.dto.AddBookDto;
 import com.LibraryManagementSystem.LMS.dto.ReturnBookDto;
 import com.LibraryManagementSystem.LMS.services.BookService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.List;
 
 @RestController

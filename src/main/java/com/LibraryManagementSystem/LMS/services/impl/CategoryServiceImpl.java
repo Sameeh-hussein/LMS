@@ -9,11 +9,11 @@ import com.LibraryManagementSystem.LMS.mappers.impl.CategoryRequestMapper;
 import com.LibraryManagementSystem.LMS.mappers.impl.CategoryReturnMapper;
 import com.LibraryManagementSystem.LMS.repositories.CategoryRepository;
 import com.LibraryManagementSystem.LMS.services.CategoryService;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.stream.Collectors;
 
