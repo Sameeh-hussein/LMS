@@ -86,14 +86,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ReturnUserDto findUserById(Long id) {
-        return userRepository.findUserById(id)
+        return userRepository.findById(id)
                 .map(userReturnMapper::mapTo)
                 .orElseThrow(() -> new UserNotFoundException("User with id: " + id + "not exist"));
     }
 
     @Override
     public void updateUserData(Long userId, @NotNull UpdateDataRequest request) {
-        User user = userRepository.findUserById(userId)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User with id: " + userId + "not exist"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
