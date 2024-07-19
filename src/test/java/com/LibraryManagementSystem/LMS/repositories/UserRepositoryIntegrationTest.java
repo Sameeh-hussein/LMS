@@ -59,7 +59,7 @@ public class UserRepositoryIntegrationTest {
 
         underTest.save(user);
 
-        Optional<User> result = underTest.findUserById(user.getId());
+        Optional<User> result = underTest.findById(user.getId());
 
         assertThat(result).isPresent();
         assertThat(result.get().getId()).isEqualTo(user.getId());

@@ -278,13 +278,13 @@ public class UserServiceImplTest {
     public void testThatFindUserByIdReturnTheUserWhenUserExists() {
         User user = testDataUtil.createUserForTest();
 
-        when(userRepository.findUserById(user.getId())).thenReturn(Optional.of(user));
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
         when(userReturnMapper.mapTo(user)).thenReturn(new ReturnUserDto());
 
         ReturnUserDto result = underTest.findUserById(user.getId());
 
         assertNotNull(result);
-        verify(userRepository, times(1)).findUserById(user.getId());
+        verify(userRepository, times(1)).findById(user.getId());
     }
 
     @Test
@@ -294,7 +294,7 @@ public class UserServiceImplTest {
         });
 
         assertNotNull(userNotFoundException);
-        verify(userRepository, times(1)).findUserById(99L);
+        verify(userRepository, times(1)).findById(99L);
     }
 
     @Test
@@ -313,7 +313,7 @@ public class UserServiceImplTest {
                 .data(signupRequest)
                 .build();
 
-        when(userRepository.findUserById(user.getId())).thenReturn(Optional.of(user));
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
         when(passwordEncoder.matches(TestDataUtil.password, user.getPassword())).thenReturn(true);
         when(passwordEncoder.encode("newpassword")).thenReturn("newpasswordencoded");
 
@@ -324,20 +324,20 @@ public class UserServiceImplTest {
         assertEquals("newlastname", user.getLastName());
         assertEquals("newpasswordencoded", user.getPassword());
 
-        verify(userRepository, times(1)).findUserById(user.getId());
+        verify(userRepository, times(1)).findById(user.getId());
         verify(passwordEncoder, times(1)).encode(request.getData().getPassword());
     }
 
     @Test
     public void testThatUpdateUserThrowUserNotFoundExceptionWhenUserDoesNotExist() {
-        when(userRepository.findUserById(99L)).thenReturn(Optional.empty());
+        when(userRepository.findById(99L)).thenReturn(Optional.empty());
 
         UserNotFoundException userNotFoundException = assertThrows(UserNotFoundException.class, () -> {
             underTest.updateUserData(99L, new UpdateDataRequest());
         });
 
         assertNotNull(userNotFoundException);
-        verify(userRepository, times(1)).findUserById(99L);
+        verify(userRepository, times(1)).findById(99L);
         verify(passwordEncoder, never()).matches(anyString(), anyString());
         verify(passwordEncoder, never()).encode(anyString());
         verify(userRepository, never()).save(any());
@@ -358,7 +358,7 @@ public class UserServiceImplTest {
 
         User user = testDataUtil.createUserForTest1();
 
-        when(userRepository.findUserById(user.getId())).thenReturn(Optional.of(user));
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
         when(passwordEncoder.matches(incorrectPassword, user.getPassword())).thenReturn(false);
 
         InvalidPasswordException invalidPasswordException = assertThrows(InvalidPasswordException.class, () -> {
@@ -366,7 +366,7 @@ public class UserServiceImplTest {
         });
 
         assertNotNull(invalidPasswordException);
-        verify(userRepository, times(1)).findUserById(user.getId());
+        verify(userRepository, times(1)).findById(user.getId());
         verify(passwordEncoder, times(1)).matches(incorrectPassword, user.getPassword());
         verify(passwordEncoder, never()).encode(anyString());
         verify(userRepository, never()).save(any());
