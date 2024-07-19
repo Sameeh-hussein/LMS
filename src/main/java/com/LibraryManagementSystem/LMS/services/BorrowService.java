@@ -13,4 +13,6 @@ public interface BorrowService {
     ReturnBorrowDto findBorrowById(Long borrowId);
 
     void setBorrowStatusReturned(Long borrowId);
+
+    void updateOverdueBorrows();
 }

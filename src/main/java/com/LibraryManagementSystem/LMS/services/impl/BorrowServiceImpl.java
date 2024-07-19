@@ -96,4 +96,13 @@ public class BorrowServiceImpl implements BorrowService {
 
         borrowRepository.save(borrow);
     }
+
+    @Override
+    public void updateOverdueBorrows() {
+        List<Borrow> overdueBorrows = borrowRepository.findByStatusAndReturnDateBefore(
+                BorrowStatus.OVERDUE, new Timestamp(System.currentTimeMillis())
+        );
+        overdueBorrows.forEach(borrow -> borrow.setStatus(BorrowStatus.OVERDUE));
+        borrowRepository.saveAll(overdueBorrows);
+    }
 }
