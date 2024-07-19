@@ -8,6 +8,7 @@ import com.LibraryManagementSystem.LMS.dto.ReturnBorrowDto;
 import com.LibraryManagementSystem.LMS.enums.BorrowStatus;
 import com.LibraryManagementSystem.LMS.exceptions.BookNotFoundException;
 import com.LibraryManagementSystem.LMS.exceptions.BorrowAlreadyExistException;
+import com.LibraryManagementSystem.LMS.exceptions.BorrowNotFoundException;
 import com.LibraryManagementSystem.LMS.exceptions.UserNotFoundException;
 import com.LibraryManagementSystem.LMS.mappers.impl.BookReturnMapper;
 import com.LibraryManagementSystem.LMS.mappers.impl.UserReturnMapper;
@@ -67,5 +68,20 @@ public class BorrowServiceImpl implements BorrowService {
                         .build()
                 )
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public ReturnBorrowDto findBorrowById(Long borrowId) {
+        return borrowRepository.findById(borrowId)
+                .map(borrow -> ReturnBorrowDto.builder()
+                        .id(borrow.getId())
+                        .user(userReturnMapper.mapTo(borrow.getUser()))
+                        .book(bookReturnMapper.mapTo(borrow.getBook()))
+                        .borrowDate(borrow.getBorrowDate())
+                        .returnDate(borrow.getReturnDate())
+                        .status(borrow.getStatus())
+                        .build()
+                )
+                .orElseThrow(() -> new BorrowNotFoundException("Borrow with id: " + borrowId + " not exists"));
     }
 }

@@ -9,4 +9,6 @@ public interface BorrowService {
     void addBorrow(AddBorrowDto request);
 
     List<ReturnBorrowDto> findAllBorrows();
+
+    ReturnBorrowDto findBorrowById(Long borrowId);
 }

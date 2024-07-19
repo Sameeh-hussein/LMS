@@ -29,4 +29,10 @@ public class BorrowController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(borrowService.findAllBorrows());
     }
+
+    @GetMapping(value = "{borrowId}")
+    public ResponseEntity<ReturnBorrowDto> findBorrow(@PathVariable Long borrowId) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(borrowService.findBorrowById(borrowId));
+    }
 }
