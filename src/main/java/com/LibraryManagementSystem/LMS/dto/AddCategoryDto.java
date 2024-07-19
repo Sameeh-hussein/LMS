@@ -1,6 +1,5 @@
 package com.LibraryManagementSystem.LMS.dto;
 
-import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

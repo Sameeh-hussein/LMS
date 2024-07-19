@@ -1,8 +1,6 @@
 package com.LibraryManagementSystem.LMS.controller;
 
-import com.LibraryManagementSystem.LMS.auth.SignupRequest;
 import com.LibraryManagementSystem.LMS.auth.UpdateDataRequest;
-import com.LibraryManagementSystem.LMS.domain.User;
 import com.LibraryManagementSystem.LMS.dto.ReturnUserDto;
 import com.LibraryManagementSystem.LMS.services.UserService;
 import lombok.RequiredArgsConstructor;

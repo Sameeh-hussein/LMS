@@ -1,6 +1,5 @@
 package com.LibraryManagementSystem.LMS.dto;
 
-import com.LibraryManagementSystem.LMS.domain.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

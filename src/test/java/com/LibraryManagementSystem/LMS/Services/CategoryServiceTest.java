@@ -114,7 +114,6 @@ public class CategoryServiceTest {
 
     @Test
     public void testThatAddCategoryThrowCategoryAlreadyExistExceptionWhenNameExist() {
-        Category category = Category.builder().id(1L).name("Art").build();
         AddCategoryDto categoryDto = AddCategoryDto.builder().name("Art").build();
 
         when(categoryRepository.existsByName(categoryDto.getName())).thenReturn(true);

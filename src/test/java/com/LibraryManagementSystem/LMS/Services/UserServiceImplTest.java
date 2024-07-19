@@ -7,7 +7,6 @@ import com.LibraryManagementSystem.LMS.auth.SignupRequest;
 import com.LibraryManagementSystem.LMS.auth.UpdateDataRequest;
 import com.LibraryManagementSystem.LMS.domain.Role;
 import com.LibraryManagementSystem.LMS.domain.User;
-import com.LibraryManagementSystem.LMS.dto.ReturnRoleDto;
 import com.LibraryManagementSystem.LMS.dto.ReturnUserDto;
 import com.LibraryManagementSystem.LMS.exceptions.InvalidPasswordException;
 import com.LibraryManagementSystem.LMS.exceptions.RoleNotFoundException;
@@ -290,7 +289,7 @@ public class UserServiceImplTest {
     @Test
     public void testThatFindUserByIdThrowUserNotFoundExceptionWhenUserDoesNotExist() {
         UserNotFoundException userNotFoundException = assertThrows(UserNotFoundException.class, () -> {
-            ReturnUserDto result = underTest.findUserById(99L);
+            underTest.findUserById(99L);
         });
 
         assertNotNull(userNotFoundException);

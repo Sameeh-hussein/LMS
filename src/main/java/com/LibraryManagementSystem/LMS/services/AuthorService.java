@@ -2,7 +2,6 @@ package com.LibraryManagementSystem.LMS.services;
 
 import com.LibraryManagementSystem.LMS.dto.AddAuthorDto;
 import com.LibraryManagementSystem.LMS.dto.ReturnAuthorDto;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 

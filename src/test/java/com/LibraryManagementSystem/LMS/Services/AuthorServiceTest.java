@@ -111,7 +111,6 @@ public class AuthorServiceTest {
 
     @Test
     public void testThatAddAuthorThrowAuthorAlreadyExistExceptionWhenNameExist() {
-        Author author = Author.builder().id(1L).name("Messi").build();
         AddAuthorDto authorDto = AddAuthorDto.builder().name("Messi").build();
 
         when(authorRepository.existsByName("Messi")).thenReturn(true);

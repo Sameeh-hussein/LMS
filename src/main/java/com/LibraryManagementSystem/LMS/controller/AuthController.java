@@ -1,7 +1,6 @@
 package com.LibraryManagementSystem.LMS.controller;
 
 import com.LibraryManagementSystem.LMS.auth.*;
-import com.LibraryManagementSystem.LMS.services.RoleService;
 import com.LibraryManagementSystem.LMS.services.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

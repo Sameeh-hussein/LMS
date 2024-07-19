@@ -1,10 +1,8 @@
 package com.LibraryManagementSystem.LMS.controllers;
 
 import com.LibraryManagementSystem.LMS.domain.Author;
-import com.LibraryManagementSystem.LMS.exceptions.AuthorAlreadyExistException;
 import com.LibraryManagementSystem.LMS.repositories.AuthorRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;

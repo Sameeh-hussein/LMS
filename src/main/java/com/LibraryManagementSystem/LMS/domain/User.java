@@ -42,6 +42,7 @@ public class User implements UserDetails {
     private Role role;
 
     @OneToMany(mappedBy = "user")
+    @Builder.Default
     private List<Borrow> borrows = new ArrayList<>();
 
     @Override
