@@ -42,7 +42,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
                         .requestMatchers("/api/auth/**",
                                 "/api/roles/**",
-                                "/api/users/**").permitAll()
+                                "/api/users/**",
+                                "/api/borrows/**").permitAll()
 
                         .requestMatchers(HttpMethod.POST, "/api/Books",
                                 "/api/authors",
