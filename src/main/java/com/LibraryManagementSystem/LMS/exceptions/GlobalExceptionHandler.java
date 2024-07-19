@@ -80,6 +80,12 @@ public class GlobalExceptionHandler {
                 .body(ex.getMessage());
     }
 
+    @ExceptionHandler(BorrowAlreadyExistException.class)
+    public ResponseEntity<String> handleBorrowAlreadyExistException(BorrowAlreadyExistException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ex.getMessage());
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = ex.getBindingResult().getFieldErrors().stream()

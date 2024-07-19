@@ -6,6 +6,7 @@ import com.LibraryManagementSystem.LMS.domain.User;
 import com.LibraryManagementSystem.LMS.dto.AddBorrowDto;
 import com.LibraryManagementSystem.LMS.enums.BorrowStatus;
 import com.LibraryManagementSystem.LMS.exceptions.BookNotFoundException;
+import com.LibraryManagementSystem.LMS.exceptions.BorrowAlreadyExistException;
 import com.LibraryManagementSystem.LMS.exceptions.UserNotFoundException;
 import com.LibraryManagementSystem.LMS.repositories.BookRepository;
 import com.LibraryManagementSystem.LMS.repositories.BorrowRepository;
@@ -29,6 +30,10 @@ public class BorrowServiceImpl implements BorrowService {
 
         Book book = bookRepository.findById(request.getBookId())
                 .orElseThrow(() -> new BookNotFoundException("Book with id: " + request.getBookId() + " not found"));
+
+        if (borrowRepository.existsByBookIdAndUserId(book.getId(), user.getId())) {
+            throw new BorrowAlreadyExistException("User with id: " + user.getId() + " already borrowed the book with id: " + book.getId());
+        }
 
         Borrow borrow = Borrow.builder()
                 .user(user)
