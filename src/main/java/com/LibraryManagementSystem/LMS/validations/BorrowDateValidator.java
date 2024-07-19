@@ -17,6 +17,12 @@ public class BorrowDateValidator implements ConstraintValidator<ValidBorrowDates
         Timestamp returnDate = addBorrowDto.getReturnDate();
         logger.debug("Validating borrow and return dates: borrowDate={}, returnDate={}", borrowDate, returnDate);
 
-        return returnDate != null && borrowDate != null && returnDate.after(borrowDate);
-    }
+        if (returnDate != null && borrowDate != null && !returnDate.after(borrowDate)) {
+            context.disableDefaultConstraintViolation();
+            context.buildConstraintViolationWithTemplate("Return date must be after borrow date")
+                    .addPropertyNode("returnDate")
+                    .addConstraintViolation();
+            return false;
+        }
+        return true;    }
 }
