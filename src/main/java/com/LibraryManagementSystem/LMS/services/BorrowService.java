@@ -11,4 +11,6 @@ public interface BorrowService {
     List<ReturnBorrowDto> findAllBorrows();
 
     ReturnBorrowDto findBorrowById(Long borrowId);
+
+    void setBorrowStatusReturned(Long borrowId);
 }

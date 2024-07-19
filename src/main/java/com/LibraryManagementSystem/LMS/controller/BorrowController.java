@@ -35,4 +35,11 @@ public class BorrowController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(borrowService.findBorrowById(borrowId));
     }
+
+    @PatchMapping(value = "{borrowId}/returned")
+    public ResponseEntity<String> returnBook(@PathVariable Long borrowId) {
+        borrowService.setBorrowStatusReturned(borrowId);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body("Borrow approved successfully");
+    }
 }

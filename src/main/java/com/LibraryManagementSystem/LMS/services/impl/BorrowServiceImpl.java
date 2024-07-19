@@ -20,6 +20,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -47,7 +48,7 @@ public class BorrowServiceImpl implements BorrowService {
         Borrow borrow = Borrow.builder()
                 .user(user)
                 .book(book)
-                .status(BorrowStatus.PENDING)
+                .status(BorrowStatus.BORROWED)
                 .borrowDate(request.getBorrowDate())
                 .returnDate(request.getReturnDate())
                 .build();
@@ -83,5 +84,16 @@ public class BorrowServiceImpl implements BorrowService {
                         .build()
                 )
                 .orElseThrow(() -> new BorrowNotFoundException("Borrow with id: " + borrowId + " not exists"));
+    }
+
+    @Override
+    public void setBorrowStatusReturned(Long borrowId) {
+        Borrow borrow = borrowRepository.findById(borrowId)
+                .orElseThrow(() -> new BorrowNotFoundException("Borrow with id: " + borrowId + " not exists"));
+
+        borrow.setReturnDate(new Timestamp(System.currentTimeMillis()));
+        borrow.setStatus(BorrowStatus.RETURNED);
+
+        borrowRepository.save(borrow);
     }
 }
