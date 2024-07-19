@@ -1,15 +1,15 @@
 package com.LibraryManagementSystem.LMS.controller;
 
 import com.LibraryManagementSystem.LMS.dto.AddBorrowDto;
+import com.LibraryManagementSystem.LMS.dto.ReturnBorrowDto;
 import com.LibraryManagementSystem.LMS.services.BorrowService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,5 +22,11 @@ public class BorrowController {
         borrowService.addBorrow(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body("Borrow added successfully");
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ReturnBorrowDto>> findAllBorrows() {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(borrowService.findAllBorrows());
     }
 }
