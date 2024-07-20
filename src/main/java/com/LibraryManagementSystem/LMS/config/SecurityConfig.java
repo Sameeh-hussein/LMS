@@ -43,6 +43,8 @@ public class SecurityConfig {
                                 "/api/authors/",
                                 "/api/borrows/").hasRole("LIBRARIAN")
 
+                        .requestMatchers(HttpMethod.GET, "/api/borrows/user/**").hasRole("MEMBER")
+
                         .requestMatchers(HttpMethod.GET, "/api/borrows/**").hasRole("LIBRARIAN")
 
                         .requestMatchers(HttpMethod.GET, "/api/Books/**",

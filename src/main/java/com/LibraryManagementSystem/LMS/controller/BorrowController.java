@@ -30,6 +30,12 @@ public class BorrowController {
                 .body(borrowService.findAllBorrows());
     }
 
+    @GetMapping(value = "/user/{userId}")
+    public ResponseEntity<List<ReturnBorrowDto>> findBorrowsByUserId(@PathVariable Long userId) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(borrowService.findBorrowsByUserId(userId));
+    }
+
     @GetMapping(value = "{borrowId}")
     public ResponseEntity<ReturnBorrowDto> findBorrow(@PathVariable Long borrowId) {
         return ResponseEntity.status(HttpStatus.OK)

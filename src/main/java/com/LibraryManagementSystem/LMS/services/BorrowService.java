@@ -17,4 +17,6 @@ public interface BorrowService {
     void updateOverdueBorrows();
 
     void removeBorrow(Long borrowId);
+
+    List<ReturnBorrowDto> findBorrowsByUserId(Long userId);
 }

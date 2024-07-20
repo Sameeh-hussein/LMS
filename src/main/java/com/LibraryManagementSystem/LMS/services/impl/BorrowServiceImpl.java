@@ -114,4 +114,19 @@ public class BorrowServiceImpl implements BorrowService {
 
         borrowRepository.delete(borrow);
     }
+
+    @Override
+    public List<ReturnBorrowDto> findBorrowsByUserId(Long userId) {
+        return borrowRepository.findByUserId(userId).stream()
+                .map(borrow -> ReturnBorrowDto.builder()
+                        .id(borrow.getId())
+                        .user(userReturnMapper.mapTo(borrow.getUser()))
+                        .book(bookReturnMapper.mapTo(borrow.getBook()))
+                        .borrowDate(borrow.getBorrowDate())
+                        .returnDate(borrow.getReturnDate())
+                        .status(borrow.getStatus())
+                        .build()
+                )
+                .collect(Collectors.toList());
+    }
 }
