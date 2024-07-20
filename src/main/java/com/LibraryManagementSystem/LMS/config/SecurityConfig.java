@@ -29,8 +29,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
                         .requestMatchers("/api/auth/**",
                                 "/api/roles/**",
-                                "/api/users/**",
-                                "/api/borrows/**").permitAll()
+                                "/api/users/**").permitAll()
 
                         .requestMatchers(HttpMethod.POST, "/api/Books",
                                 "/api/authors",
@@ -41,11 +40,15 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.DELETE, "/api/Books/",
                                 "/api/categories/",
-                                "/api/authors/").hasRole("LIBRARIAN")
+                                "/api/authors/",
+                                "/api/borrows/").hasRole("LIBRARIAN")
+
+                        .requestMatchers(HttpMethod.GET, "/api/borrows/**").hasRole("LIBRARIAN")
 
                         .requestMatchers(HttpMethod.GET, "/api/Books/**",
                                 "/api/categories/**",
-                                "/api/authors/**").permitAll()
+                                "/api/authors/**",
+                                "/api/borrows/**").permitAll()
 
                         .anyRequest().authenticated()
                 )

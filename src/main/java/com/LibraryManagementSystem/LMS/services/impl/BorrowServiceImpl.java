@@ -6,10 +6,7 @@ import com.LibraryManagementSystem.LMS.domain.User;
 import com.LibraryManagementSystem.LMS.dto.AddBorrowDto;
 import com.LibraryManagementSystem.LMS.dto.ReturnBorrowDto;
 import com.LibraryManagementSystem.LMS.enums.BorrowStatus;
-import com.LibraryManagementSystem.LMS.exceptions.BookNotFoundException;
-import com.LibraryManagementSystem.LMS.exceptions.BorrowAlreadyExistException;
-import com.LibraryManagementSystem.LMS.exceptions.BorrowNotFoundException;
-import com.LibraryManagementSystem.LMS.exceptions.UserNotFoundException;
+import com.LibraryManagementSystem.LMS.exceptions.*;
 import com.LibraryManagementSystem.LMS.mappers.impl.BookReturnMapper;
 import com.LibraryManagementSystem.LMS.mappers.impl.UserReturnMapper;
 import com.LibraryManagementSystem.LMS.repositories.BookRepository;
@@ -37,6 +34,10 @@ public class BorrowServiceImpl implements BorrowService {
     public void addBorrow(@NotNull AddBorrowDto request) {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new UserNotFoundException("User with Iid: " + request.getUserId() + " not found"));
+
+        if (user.getRole().getName() != null && !user.getRole().getName().equals("MEMBER")) {
+            throw new UserNotAuthorizedException("User with id: " + user.getId() + " is not authorized to add Borrow, must has member role");
+        }
 
         Book book = bookRepository.findById(request.getBookId())
                 .orElseThrow(() -> new BookNotFoundException("Book with id: " + request.getBookId() + " not found"));
