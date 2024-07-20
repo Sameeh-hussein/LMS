@@ -15,4 +15,6 @@ public interface BorrowService {
     void setBorrowStatusReturned(Long borrowId);
 
     void updateOverdueBorrows();
+
+    void removeBorrow(Long borrowId);
 }

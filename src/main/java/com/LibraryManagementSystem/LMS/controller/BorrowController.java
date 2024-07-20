@@ -42,4 +42,11 @@ public class BorrowController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body("Borrow approved successfully");
     }
+
+    @DeleteMapping(value = "{borrowId}")
+    public ResponseEntity<String> deleteBorrow(@PathVariable Long borrowId) {
+        borrowService.removeBorrow(borrowId);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body("Borrow deleted successfully");
+    }
 }

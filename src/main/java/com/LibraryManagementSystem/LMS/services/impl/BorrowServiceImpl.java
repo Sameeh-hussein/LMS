@@ -105,4 +105,12 @@ public class BorrowServiceImpl implements BorrowService {
         overdueBorrows.forEach(borrow -> borrow.setStatus(BorrowStatus.OVERDUE));
         borrowRepository.saveAll(overdueBorrows);
     }
+
+    @Override
+    public void removeBorrow(Long borrowId) {
+        Borrow borrow = borrowRepository.findById(borrowId)
+                .orElseThrow(() -> new BorrowNotFoundException("Borrow with id: " + borrowId + " not found"));
+
+        borrowRepository.delete(borrow);
+    }
 }
