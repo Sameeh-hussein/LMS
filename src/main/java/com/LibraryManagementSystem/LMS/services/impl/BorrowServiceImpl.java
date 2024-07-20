@@ -15,6 +15,8 @@ import com.LibraryManagementSystem.LMS.repositories.UserRepository;
 import com.LibraryManagementSystem.LMS.services.BorrowService;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -58,8 +60,8 @@ public class BorrowServiceImpl implements BorrowService {
     }
 
     @Override
-    public List<ReturnBorrowDto> findAllBorrows() {
-        return borrowRepository.findAll().stream()
+    public Page<ReturnBorrowDto> findAllBorrows(Pageable pageable) {
+        return borrowRepository.findAll(pageable)
                 .map(borrow -> ReturnBorrowDto.builder()
                         .id(borrow.getId())
                         .user(userReturnMapper.mapTo(borrow.getUser()))
@@ -68,8 +70,7 @@ public class BorrowServiceImpl implements BorrowService {
                         .returnDate(borrow.getReturnDate())
                         .status(borrow.getStatus())
                         .build()
-                )
-                .collect(Collectors.toList());
+                );
     }
 
     @Override
@@ -116,8 +117,8 @@ public class BorrowServiceImpl implements BorrowService {
     }
 
     @Override
-    public List<ReturnBorrowDto> findBorrowsByUserId(Long userId) {
-        return borrowRepository.findByUserId(userId).stream()
+    public Page<ReturnBorrowDto> findBorrowsByUserId(Long userId, Pageable pageable) {
+        return borrowRepository.findByUserId(userId, pageable)
                 .map(borrow -> ReturnBorrowDto.builder()
                         .id(borrow.getId())
                         .user(userReturnMapper.mapTo(borrow.getUser()))
@@ -126,7 +127,6 @@ public class BorrowServiceImpl implements BorrowService {
                         .returnDate(borrow.getReturnDate())
                         .status(borrow.getStatus())
                         .build()
-                )
-                .collect(Collectors.toList());
+                );
     }
 }

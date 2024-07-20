@@ -5,11 +5,11 @@ import com.LibraryManagementSystem.LMS.dto.ReturnBorrowDto;
 import com.LibraryManagementSystem.LMS.services.BorrowService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,15 +25,15 @@ public class BorrowController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ReturnBorrowDto>> findAllBorrows() {
+    public ResponseEntity<Page<ReturnBorrowDto>> findAllBorrows(Pageable pageable) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(borrowService.findAllBorrows());
+                .body(borrowService.findAllBorrows(pageable));
     }
 
     @GetMapping(value = "/user/{userId}")
-    public ResponseEntity<List<ReturnBorrowDto>> findBorrowsByUserId(@PathVariable Long userId) {
+    public ResponseEntity<Page<ReturnBorrowDto>> findBorrowsByUserId(@PathVariable Long userId, Pageable pageable) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(borrowService.findBorrowsByUserId(userId));
+                .body(borrowService.findBorrowsByUserId(userId, pageable));
     }
 
     @GetMapping(value = "{borrowId}")
