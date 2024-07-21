@@ -17,11 +17,12 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -90,8 +91,21 @@ public class BorrowServiceImpl implements BorrowService {
 
     @Override
     public void setBorrowStatusReturned(Long borrowId) {
+        String authenticatedEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        User currentUser = userRepository.findByEmail(authenticatedEmail)
+                .orElseThrow(() -> new UserNotFoundException("Current user not found"));
+
         Borrow borrow = borrowRepository.findById(borrowId)
                 .orElseThrow(() -> new BorrowNotFoundException("Borrow with id: " + borrowId + " not exists"));
+
+        if (!currentUser.equals(borrow.getUser())) {
+            throw new AccessDeniedException("You are not authorized to return this book");
+        }
+
+        if(borrow.getStatus().equals(BorrowStatus.RETURNED)) {
+            throw new AlreadyReturnedException("You are already returned the book");
+        }
 
         borrow.setReturnDate(new Timestamp(System.currentTimeMillis()));
         borrow.setStatus(BorrowStatus.RETURNED);

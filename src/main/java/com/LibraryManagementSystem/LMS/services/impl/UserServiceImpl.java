@@ -13,6 +13,7 @@ import com.LibraryManagementSystem.LMS.services.UserService;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -46,14 +47,12 @@ public class UserServiceImpl implements UserService {
             );
         } catch (InternalAuthenticationServiceException e) {
             throw new UserNotFoundException("User not found with email: " + request.getEmail());
+        } catch (BadCredentialsException e) {
+            throw new BadCredentialsException("Password dose not match");
         }
 
         User user = userRepository.findByEmail(request.getEmail()).orElseThrow(() ->
                 new UserNotFoundException("User not found with email: " + request.getEmail()));
-
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new UserNotFoundException("Incorrect password");
-        }
 
         return jwtUtil.generateToken(user);
     }
