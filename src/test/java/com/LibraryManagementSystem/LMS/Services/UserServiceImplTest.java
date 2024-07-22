@@ -23,8 +23,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -69,6 +74,14 @@ public class UserServiceImplTest {
     @Autowired
     private TestDataUtil testDataUtil;
 
+    private void setUpSecurityContext(String authenticatedEmail) {
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getName()).thenReturn(authenticatedEmail);
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+    }
+
     @Test
     public void testThatAuthenticateUserReturnsValidTokenWhenSuccess() {
         User user = testDataUtil.createUserForTest();
@@ -76,9 +89,6 @@ public class UserServiceImplTest {
 
         when(userRepository.findByEmail(user.getEmail()))
                 .thenReturn(Optional.of(user));
-
-        when(passwordEncoder.matches(loginRequest.getPassword(), user.getPassword()))
-                .thenReturn(true);
 
         when(jwtUtil.generateToken(user))
                 .thenReturn("token");
@@ -95,15 +105,13 @@ public class UserServiceImplTest {
         verify(userRepository, times(1))
                 .findByEmail(user.getEmail());
 
-        verify(passwordEncoder, times(1))
-                .matches(loginRequest.getPassword(), user.getPassword());
-
         verify(jwtUtil, times(1))
                 .generateToken(user);
 
         verify(authenticationManager, times(1))
                 .authenticate(any(UsernamePasswordAuthenticationToken.class));
     }
+
     @Test
     public void testThatAuthenticateUserThrowUserNotFoundExceptionWhenUserNotFound() {
         LoginRequest loginRequest = testDataUtil.createUnValidLoginRequestForTest();
@@ -121,41 +129,33 @@ public class UserServiceImplTest {
         verify(userRepository, times(1))
                 .findByEmail(loginRequest.getEmail());
 
-        verify(passwordEncoder, never())
-                .matches(anyString(), anyString());
-
         verify(jwtUtil, never())
                 .generateToken(any(User.class));
     }
 
     @Test
-    public void testThatAuthenticateUserThrowUserNotFoundExceptionWhenPasswordNotMatch() {
-        LoginRequest loginRequest = testDataUtil.createUnValidLoginRequestForTest();
+    public void testThatAuthenticateUserThrowsBadCredentialsExceptionWhenPasswordDoesNotMatch() {
+        LoginRequest loginRequest = testDataUtil.createLoginRequestForTest();
         User user = testDataUtil.createUserForTest();
         loginRequest.setEmail(user.getEmail());
 
-        when(userRepository.findByEmail(user.getEmail()))
+        when(userRepository.findByEmail(loginRequest.getEmail()))
                 .thenReturn(Optional.of(user));
 
-        when(passwordEncoder.matches(loginRequest.getPassword(), user.getPassword()))
-                .thenReturn(false);
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+                .thenThrow(new BadCredentialsException("Password does not match"));
 
-        UserNotFoundException userNotFoundException = assertThrows(UserNotFoundException.class, () -> {
+        BadCredentialsException badCredentialsException = assertThrows(BadCredentialsException.class, () -> {
             underTest.authenticateUser(loginRequest);
         });
 
-        assertNotNull(userNotFoundException);
+        assertNotNull(badCredentialsException);
+        assertEquals("Password does not match", badCredentialsException.getMessage());
 
-        assertEquals("Incorrect password", userNotFoundException.getMessage());
-
-        verify(userRepository, times(1))
-                .findByEmail(loginRequest.getEmail());
-
-        verify(passwordEncoder, times(1))
-                .matches(loginRequest.getPassword(), user.getPassword());
-
-        verify(jwtUtil, never())
-                .generateToken(any(User.class));
+        verify(userRepository, never()).findByEmail(loginRequest.getEmail());
+        verify(passwordEncoder, never()).matches(anyString(), anyString());
+        verify(jwtUtil, never()).generateToken(any(User.class));
+        verify(authenticationManager, times(1)).authenticate(any(UsernamePasswordAuthenticationToken.class));
     }
 
     @Test
@@ -306,6 +306,8 @@ public class UserServiceImplTest {
                 .build();
 
         User user = testDataUtil.createUserForTest();
+        String authenticatedEmail = user.getEmail();
+        setUpSecurityContext(authenticatedEmail);
 
         UpdateDataRequest request = UpdateDataRequest.builder()
                 .password(TestDataUtil.password)
@@ -313,6 +315,7 @@ public class UserServiceImplTest {
                 .build();
 
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        when(userRepository.findByEmail(authenticatedEmail)).thenReturn(Optional.of(user));
         when(passwordEncoder.matches(TestDataUtil.password, user.getPassword())).thenReturn(true);
         when(passwordEncoder.encode("newpassword")).thenReturn("newpasswordencoded");
 
@@ -324,11 +327,14 @@ public class UserServiceImplTest {
         assertEquals("newpasswordencoded", user.getPassword());
 
         verify(userRepository, times(1)).findById(user.getId());
+        verify(userRepository, times(1)).findByEmail(authenticatedEmail);
         verify(passwordEncoder, times(1)).encode(request.getData().getPassword());
     }
 
     @Test
     public void testThatUpdateUserThrowUserNotFoundExceptionWhenUserDoesNotExist() {
+        setUpSecurityContext("not@exist.com");
+
         when(userRepository.findById(99L)).thenReturn(Optional.empty());
 
         UserNotFoundException userNotFoundException = assertThrows(UserNotFoundException.class, () -> {
@@ -337,6 +343,7 @@ public class UserServiceImplTest {
 
         assertNotNull(userNotFoundException);
         verify(userRepository, times(1)).findById(99L);
+        verify(userRepository, never()).findByEmail(anyString());
         verify(passwordEncoder, never()).matches(anyString(), anyString());
         verify(passwordEncoder, never()).encode(anyString());
         verify(userRepository, never()).save(any());
@@ -356,8 +363,11 @@ public class UserServiceImplTest {
                 .build();
 
         User user = testDataUtil.createUserForTest1();
+        String authenticatedEmail = user.getEmail();
+        setUpSecurityContext(authenticatedEmail);
 
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        when(userRepository.findByEmail(authenticatedEmail)).thenReturn(Optional.of(user));
         when(passwordEncoder.matches(incorrectPassword, user.getPassword())).thenReturn(false);
 
         InvalidPasswordException invalidPasswordException = assertThrows(InvalidPasswordException.class, () -> {
@@ -366,8 +376,41 @@ public class UserServiceImplTest {
 
         assertNotNull(invalidPasswordException);
         verify(userRepository, times(1)).findById(user.getId());
+        verify(userRepository, times(1)).findByEmail(authenticatedEmail);
         verify(passwordEncoder, times(1)).matches(incorrectPassword, user.getPassword());
         verify(passwordEncoder, never()).encode(anyString());
         verify(userRepository, never()).save(any());
     }
+
+    @Test
+    public void testThatUpdateUserThrowsAccessDeniedExceptionWhenCurrentUserIsDifferent() {
+        User userToUpdate = testDataUtil.createUserForTest();
+        User currentUser = testDataUtil.createUserForTest1(); // Different user
+        setUpSecurityContext(currentUser.getEmail());
+
+        UpdateDataRequest updateDataRequest = UpdateDataRequest.builder()
+                .password(TestDataUtil.password)
+                .data(SignupRequest.builder()
+                        .email("newemail@gmail.com")
+                        .firstName("newfirstname")
+                        .lastName("newlastname")
+                        .password("newpassword")
+                        .build())
+                .build();
+
+        when(userRepository.findById(userToUpdate.getId())).thenReturn(Optional.of(userToUpdate));
+        when(userRepository.findByEmail(currentUser.getEmail())).thenReturn(Optional.of(currentUser));
+
+        AccessDeniedException accessDeniedException = assertThrows(AccessDeniedException.class, () -> {
+            underTest.updateUserData(userToUpdate.getId(), updateDataRequest);
+        });
+
+        assertNotNull(accessDeniedException);
+        verify(userRepository, times(1)).findById(userToUpdate.getId());
+        verify(userRepository, times(1)).findByEmail(currentUser.getEmail());
+        verify(passwordEncoder, never()).matches(anyString(), anyString());
+        verify(passwordEncoder, never()).encode(anyString());
+        verify(userRepository, never()).save(any());
+    }
 }
+

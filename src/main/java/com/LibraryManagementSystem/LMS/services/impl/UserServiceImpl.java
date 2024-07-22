@@ -12,10 +12,12 @@ import com.LibraryManagementSystem.LMS.repositories.UserRepository;
 import com.LibraryManagementSystem.LMS.services.UserService;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -48,7 +50,7 @@ public class UserServiceImpl implements UserService {
         } catch (InternalAuthenticationServiceException e) {
             throw new UserNotFoundException("User not found with email: " + request.getEmail());
         } catch (BadCredentialsException e) {
-            throw new BadCredentialsException("Password dose not match");
+            throw new BadCredentialsException("Password does not match");
         }
 
         User user = userRepository.findByEmail(request.getEmail()).orElseThrow(() ->
@@ -94,6 +96,14 @@ public class UserServiceImpl implements UserService {
     public void updateUserData(Long userId, @NotNull UpdateDataRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User with id: " + userId + "not exist"));
+
+        String authenticatedEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = userRepository.findByEmail(authenticatedEmail)
+                .orElseThrow(() -> new UserNotFoundException("Need to be logged in"));
+
+        if(!currentUser.equals(user)) {
+            throw new AccessDeniedException("You are not authorized to update this user data");
+        }
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new InvalidPasswordException("Password doesn't match");

@@ -94,7 +94,7 @@ public class BorrowServiceImpl implements BorrowService {
         String authenticatedEmail = SecurityContextHolder.getContext().getAuthentication().getName();
 
         User currentUser = userRepository.findByEmail(authenticatedEmail)
-                .orElseThrow(() -> new UserNotFoundException("Current user not found"));
+                .orElseThrow(() -> new UserNotFoundException("Need to be logged in"));
 
         Borrow borrow = borrowRepository.findById(borrowId)
                 .orElseThrow(() -> new BorrowNotFoundException("Borrow with id: " + borrowId + " not exists"));
