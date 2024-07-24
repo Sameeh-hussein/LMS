@@ -52,7 +52,7 @@ public class AuthorRepositoryTest {
     }
     
     @Test
-    public void existsByNameAndIdNotReturnTrueWhenNotExist() {
+    public void existsByNameAndIdNotReturnFalseWhenNotExist() {
         Author author = Author.builder().id(1L).name("Messi").build();
         authorRepository.save(author);
 
