@@ -36,7 +36,7 @@ public class BorrowServiceImpl implements BorrowService {
     @Override
     public void addBorrow(@NotNull AddBorrowDto request) {
         User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new UserNotFoundException("User with Iid: " + request.getUserId() + " not found"));
+                .orElseThrow(() -> new UserNotFoundException("User with id: " + request.getUserId() + " not found"));
 
         if (user.getRole().getName() != null && !user.getRole().getName().equals("ROLE_MEMBER")) {
             throw new UserNotAuthorizedException("User with id: " + user.getId() + " is not authorized to add Borrow, must has member role");
@@ -86,7 +86,7 @@ public class BorrowServiceImpl implements BorrowService {
                         .status(borrow.getStatus())
                         .build()
                 )
-                .orElseThrow(() -> new BorrowNotFoundException("Borrow with id: " + borrowId + " not exists"));
+                .orElseThrow(() -> new BorrowNotFoundException("Borrow with id: " + borrowId + " not found"));
     }
 
     @Override
@@ -104,7 +104,7 @@ public class BorrowServiceImpl implements BorrowService {
         }
 
         if(borrow.getStatus().equals(BorrowStatus.RETURNED)) {
-            throw new AlreadyReturnedException("You are already returned the book");
+            throw new AlreadyReturnedException("You already returned the book");
         }
 
         borrow.setReturnDate(new Timestamp(System.currentTimeMillis()));
