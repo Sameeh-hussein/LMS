@@ -38,7 +38,7 @@ public class BorrowServiceImpl implements BorrowService {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new UserNotFoundException("User with Iid: " + request.getUserId() + " not found"));
 
-        if (user.getRole().getName() != null && !user.getRole().getName().equals("MEMBER")) {
+        if (user.getRole().getName() != null && !user.getRole().getName().equals("ROLE_MEMBER")) {
             throw new UserNotAuthorizedException("User with id: " + user.getId() + " is not authorized to add Borrow, must has member role");
         }
 
