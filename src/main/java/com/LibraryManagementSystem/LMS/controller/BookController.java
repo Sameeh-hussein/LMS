@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -48,5 +49,11 @@ public class BookController {
         bookService.removeBook(bookId);
         return ResponseEntity.status(HttpStatus.OK)
                 .body("Book deleted successfully");
+    }
+
+    @PostMapping("{bookId}/images")
+    public ResponseEntity<List<String>> addImage(@PathVariable Long bookId, @RequestParam("images") List<MultipartFile> files) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(bookService.updateBookImages(bookId, files));
     }
 }

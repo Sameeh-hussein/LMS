@@ -27,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -34,6 +35,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
+    private static final List<String> ALLOWED_FILE_TYPES = Arrays.asList("image/png", "image/jpeg", "image/jpg");
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
@@ -43,6 +45,7 @@ public class UserServiceImpl implements UserService {
     private final JwtUtil jwtUtil;
     private final UserRequestMapper userRequestMapper;
     private final AuthenticationManager authenticationManager;
+    private final UserReturnMapper userReturnMapper;
 
     @Override
     public String authenticateUser(@NotNull LoginRequest request) {
@@ -92,26 +95,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<ReturnUserDto> findAll() {
         return userRepository.findAll().stream()
-                .map(user -> ReturnUserDto.builder()
-                        .id(user.getId())
-                        .email(user.getEmail())
-                        .username(user.getUsername())
-                        .roleName(user.getRole().getName())
-                        .profileImage(user.getProfileImage().getPath())
-                        .build())
+                .map(userReturnMapper::mapTo)
                 .collect(Collectors.toList());
     }
 
     @Override
     public ReturnUserDto findUserById(Long id) {
         return userRepository.findById(id)
-                .map(user -> ReturnUserDto.builder()
-                        .id(user.getId())
-                        .email(user.getEmail())
-                        .username(user.getUsername())
-                        .roleName(user.getRole().getName())
-                        .profileImage(user.getProfileImage().getPath())
-                        .build())
+                .map(userReturnMapper::mapTo)
                 .orElseThrow(() -> new UserNotFoundException("User with id: " + id + " not exist"));
     }
 
@@ -148,11 +139,11 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new AccessDeniedException("You are not authorized to update this user image"));
 
         String contentType = file.getContentType();
-        if (contentType == null || !isImage(contentType)) {
+        if (contentType == null || !ALLOWED_FILE_TYPES.contains(contentType)) {
             throw new IllegalArgumentException("Invalid file type. Only PNG, JPG, and JPEG files are allowed.");
         }
 
-        String filePath = fileStorageService.uploadImageToFileSystem(file);
+        String filePath = fileStorageService.uploadImageToFileSystem(file, "userProfile");
 
         ProfileImage image = ProfileImage.builder()
                 .path(filePath)
@@ -166,11 +157,5 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
 
         return filePath;
-    }
-
-    private boolean isImage(String contentType) {
-        return contentType.equals("image/png") ||
-                contentType.equals("image/jpeg") ||
-                contentType.equals("image/jpg");
     }
 }

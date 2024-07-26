@@ -2,6 +2,7 @@ package com.LibraryManagementSystem.LMS.services.impl;
 
 import com.LibraryManagementSystem.LMS.domain.Author;
 import com.LibraryManagementSystem.LMS.domain.Book;
+import com.LibraryManagementSystem.LMS.domain.BookImage;
 import com.LibraryManagementSystem.LMS.domain.Category;
 import com.LibraryManagementSystem.LMS.dto.AddBookDto;
 import com.LibraryManagementSystem.LMS.dto.ReturnBookDto;
@@ -11,24 +12,35 @@ import com.LibraryManagementSystem.LMS.exceptions.BookNotFoundException;
 import com.LibraryManagementSystem.LMS.exceptions.CategoryNotFoundException;
 import com.LibraryManagementSystem.LMS.mappers.impl.BookReturnMapper;
 import com.LibraryManagementSystem.LMS.repositories.AuthorRepository;
+import com.LibraryManagementSystem.LMS.repositories.BookImageRepository;
 import com.LibraryManagementSystem.LMS.repositories.BookRepository;
 import com.LibraryManagementSystem.LMS.repositories.CategoryRepository;
 import com.LibraryManagementSystem.LMS.services.BookService;
+import com.LibraryManagementSystem.LMS.services.FileStorageService;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class BookServiceImpl implements BookService {
+    private static final List<String> ALLOWED_FILE_TYPES = Arrays.asList("image/png", "image/jpeg", "image/jpg");
+
     private final BookRepository bookRepository;
     private final BookReturnMapper bookReturnMapper;
     private final CategoryRepository categoryRepository;
     private final AuthorRepository authorRepository;
+    private final FileStorageService fileStorageService;
+    private final BookImageRepository bookImageRepository;
 
     @Override
     public List<ReturnBookDto> findAllBooks() {
@@ -80,6 +92,48 @@ public class BookServiceImpl implements BookService {
                 .orElseThrow(() -> new BookNotFoundException("Book with id: " + bookId + " not exist"));
 
         bookRepository.delete(book);
+    }
+
+    @Override
+    @Transactional
+    public List<String> updateBookImages(Long bookId, List<MultipartFile> files) {
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new BookNotFoundException("Book with id: " + bookId + " not exist"));
+
+        List<String> paths = new ArrayList<>();
+        List<BookImage> images = files.stream()
+                .map(file -> processFile(file, book, paths))
+                .collect(Collectors.toList());
+
+        book.setBookImages(images);
+
+        bookRepository.save(book);
+        return paths;
+    }
+
+    private BookImage processFile(MultipartFile file, Book book, List<String> paths) {
+        if (file.getContentType() == null || !ALLOWED_FILE_TYPES.contains(file.getContentType())) {
+            throw new IllegalArgumentException("Invalid file type. Only PNG, JPG, and JPEG files are allowed.");
+        }
+
+        String path = null;
+        try {
+            path = fileStorageService.uploadImageToFileSystem(file, "book");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        paths.add(path);
+        BookImage image = BookImage.builder()
+                .name(file.getOriginalFilename())
+                .path(path)
+                .book(book)
+                .uploadDate(LocalDateTime.now())
+                .build();
+
+        bookImageRepository.save(image);
+
+        return image;
     }
 
     @Override

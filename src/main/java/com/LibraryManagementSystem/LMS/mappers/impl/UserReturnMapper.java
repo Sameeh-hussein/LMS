@@ -19,7 +19,13 @@ public class UserReturnMapper implements Mapper<User, ReturnUserDto> {
 
     @Override
     public ReturnUserDto mapTo(User user) {
-        return modelMapper.map(user, ReturnUserDto.class);
+        return ReturnUserDto.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .username(user.getUsername())
+                .roleName(user.getRole().getName())
+                .profileImage(user.getProfileImage().getPath())
+                .build();
     }
 
     @Override
