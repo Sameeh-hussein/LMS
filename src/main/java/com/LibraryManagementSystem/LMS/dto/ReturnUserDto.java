@@ -17,4 +17,6 @@ public class ReturnUserDto {
     private String email;
 
     private String roleName;
+
+    private String profileImage;
 }

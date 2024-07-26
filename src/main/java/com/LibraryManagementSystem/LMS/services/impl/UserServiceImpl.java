@@ -1,14 +1,17 @@
 package com.LibraryManagementSystem.LMS.services.impl;
 
 import com.LibraryManagementSystem.LMS.auth.*;
+import com.LibraryManagementSystem.LMS.domain.ProfileImage;
 import com.LibraryManagementSystem.LMS.domain.Role;
 import com.LibraryManagementSystem.LMS.domain.User;
 import com.LibraryManagementSystem.LMS.dto.ReturnUserDto;
 import com.LibraryManagementSystem.LMS.exceptions.*;
 import com.LibraryManagementSystem.LMS.mappers.impl.UserRequestMapper;
 import com.LibraryManagementSystem.LMS.mappers.impl.UserReturnMapper;
+import com.LibraryManagementSystem.LMS.repositories.ProfileImageRepository;
 import com.LibraryManagementSystem.LMS.repositories.RoleRepository;
 import com.LibraryManagementSystem.LMS.repositories.UserRepository;
+import com.LibraryManagementSystem.LMS.services.FileStorageService;
 import com.LibraryManagementSystem.LMS.services.UserService;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +23,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -32,10 +37,11 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final ProfileImageRepository profileImageRepository;
+    private final FileStorageService fileStorageService;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final UserRequestMapper userRequestMapper;
-    private final UserReturnMapper userReturnMapper;
     private final AuthenticationManager authenticationManager;
 
     @Override
@@ -74,6 +80,11 @@ public class UserServiceImpl implements UserService {
         user.setRole(role.get());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setCreatedAt(LocalDateTime.now());
+        user.setProfileImage(ProfileImage.builder()
+                .name("")
+                .path("")
+                .build()
+        );
 
         userRepository.save(user);
     }
@@ -81,15 +92,27 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<ReturnUserDto> findAll() {
         return userRepository.findAll().stream()
-                .map(userReturnMapper::mapTo)
+                .map(user -> ReturnUserDto.builder()
+                        .id(user.getId())
+                        .email(user.getEmail())
+                        .username(user.getUsername())
+                        .roleName(user.getRole().getName())
+                        .profileImage(user.getProfileImage().getPath())
+                        .build())
                 .collect(Collectors.toList());
     }
 
     @Override
     public ReturnUserDto findUserById(Long id) {
         return userRepository.findById(id)
-                .map(userReturnMapper::mapTo)
-                .orElseThrow(() -> new UserNotFoundException("User with id: " + id + "not exist"));
+                .map(user -> ReturnUserDto.builder()
+                        .id(user.getId())
+                        .email(user.getEmail())
+                        .username(user.getUsername())
+                        .roleName(user.getRole().getName())
+                        .profileImage(user.getProfileImage().getPath())
+                        .build())
+                .orElseThrow(() -> new UserNotFoundException("User with id: " + id + " not exist"));
     }
 
     @Override
@@ -101,7 +124,7 @@ public class UserServiceImpl implements UserService {
         User currentUser = userRepository.findByEmail(authenticatedEmail)
                 .orElseThrow(() -> new UserNotFoundException("Need to be logged in"));
 
-        if(!currentUser.equals(user)) {
+        if (!currentUser.equals(user)) {
             throw new AccessDeniedException("You are not authorized to update this user data");
         }
 
@@ -115,5 +138,39 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(request.getData().getPassword()));
 
         userRepository.save(user);
+    }
+
+    @Override
+    public String updateUserProfileImage(MultipartFile file) throws IOException {
+        String authenticatedEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        User user = userRepository.findByEmail(authenticatedEmail)
+                .orElseThrow(() -> new AccessDeniedException("You are not authorized to update this user image"));
+
+        String contentType = file.getContentType();
+        if (contentType == null || !isImage(contentType)) {
+            throw new IllegalArgumentException("Invalid file type. Only PNG, JPG, and JPEG files are allowed.");
+        }
+
+        String filePath = fileStorageService.uploadImageToFileSystem(file);
+
+        ProfileImage image = ProfileImage.builder()
+                .path(filePath)
+                .name(file.getOriginalFilename())
+                .uploadDate(LocalDateTime.now())
+                .build();
+
+        user.setProfileImage(image);
+
+        profileImageRepository.save(image);
+        userRepository.save(user);
+
+        return filePath;
+    }
+
+    private boolean isImage(String contentType) {
+        return contentType.equals("image/png") ||
+                contentType.equals("image/jpeg") ||
+                contentType.equals("image/jpg");
     }
 }
