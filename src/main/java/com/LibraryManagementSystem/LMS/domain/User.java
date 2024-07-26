@@ -45,6 +45,10 @@ public class User implements UserDetails {
     @Builder.Default
     private List<Borrow> borrows = new ArrayList<>();
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "profile_image_id", referencedColumnName = "id")
+    private ProfileImage profileImage;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.getName()));
