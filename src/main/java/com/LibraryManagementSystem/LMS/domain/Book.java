@@ -45,4 +45,8 @@ public class Book {
     @OneToMany(mappedBy = "book")
     @Builder.Default
     private List<Borrow> borrows = new ArrayList<>();
+
+    @OneToMany(mappedBy = "book")
+    @Builder.Default
+    private List<BookImage> bookImages = new ArrayList<>();
 }

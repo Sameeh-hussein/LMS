@@ -24,4 +24,6 @@ public class ReturnBookDto {
     private ReturnCategoryDto category;
 
     private List<ReturnAuthorDto> authors;
+
+    private List<String> bookImages;
 }
