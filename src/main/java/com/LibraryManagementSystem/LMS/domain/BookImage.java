@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Table(name = "BookImages")
 public class BookImage {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
     private String path;

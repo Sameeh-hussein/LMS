@@ -17,7 +17,7 @@ import java.sql.Timestamp;
 @Table(name = "Borrows")
 public class Borrow {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
