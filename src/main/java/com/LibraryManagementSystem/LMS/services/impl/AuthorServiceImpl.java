@@ -9,8 +9,11 @@ import com.LibraryManagementSystem.LMS.mappers.impl.AuthorRequestMapper;
 import com.LibraryManagementSystem.LMS.mappers.impl.AuthorReturnMapper;
 import com.LibraryManagementSystem.LMS.repositories.AuthorRepository;
 import com.LibraryManagementSystem.LMS.services.AuthorService;
-import jakarta.validation.constraints.NotNull;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,7 +27,8 @@ public class AuthorServiceImpl implements AuthorService {
     private final AuthorReturnMapper authorReturnMapper;
 
     @Override
-    public void addAuthor(@NotNull AddAuthorDto request) {
+    @CacheEvict(value = "authors", allEntries = true)
+    public void addAuthor(@NonNull AddAuthorDto request) {
         if (authorRepository.existsByName(request.getName())) {
             throw new AuthorAlreadyExistException("Author with name " + request.getName() + " already exists");
         }
@@ -33,6 +37,7 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
+    @Cacheable(value = "authors")
     public List<ReturnAuthorDto> findAllAuthors() {
         return authorRepository.findAll().stream()
                 .map(authorReturnMapper::mapTo)
@@ -40,6 +45,7 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
+    @Cacheable(value = "author", key = "#authorId")
     public ReturnAuthorDto findAuthorById(Long authorId) {
         return authorRepository.findById(authorId)
                 .map(authorReturnMapper::mapTo)
@@ -47,6 +53,7 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
+    @CacheEvict(value = {"author", "authors"}, allEntries = true)
     public void removeAuthor(Long authorId) {
         Author author = authorRepository.findById(authorId)
                 .orElseThrow(() -> new AuthorNotFoundException("Author with id " + authorId + " not found"));
@@ -59,7 +66,9 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
-    public void updateAuthor(Long authorId, @NotNull AddAuthorDto request) {
+    @CachePut(value = "author", key = "#authorId")
+    @CacheEvict(value = "authors", allEntries = true)
+    public void updateAuthor(Long authorId, @NonNull AddAuthorDto request) {
         Author author = authorRepository.findById(authorId)
                 .orElseThrow(() -> new AuthorNotFoundException("Author with id " + authorId + " not found"));
 

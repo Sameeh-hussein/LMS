@@ -19,6 +19,9 @@ import com.LibraryManagementSystem.LMS.services.BookService;
 import com.LibraryManagementSystem.LMS.services.FileStorageService;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -43,6 +46,7 @@ public class BookServiceImpl implements BookService {
     private final BookImageRepository bookImageRepository;
 
     @Override
+    @Cacheable(value = "books")
     public List<ReturnBookDto> findAllBooks() {
         return bookRepository.findAll().stream()
                 .map(bookReturnMapper::mapTo)
@@ -50,6 +54,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    @Cacheable(value = "book", key = "#bookId")
     public ReturnBookDto findById(Long bookId) {
         return bookRepository.findById(bookId)
                 .map(bookReturnMapper::mapTo)
@@ -57,6 +62,8 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    @CachePut(value = "book", key = "#bookId")
+    @CacheEvict(value = "books", allEntries = true)
     public void updateBook(Long bookId, @NotNull AddBookDto request) {
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new BookNotFoundException("Book with id: " + bookId + " not exist"));
@@ -87,6 +94,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    @CacheEvict(value = {"author", "authors"}, allEntries = true)
     public void removeBook(Long bookId) {
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new BookNotFoundException("Book with id: " + bookId + " not exist"));
@@ -96,6 +104,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional
+    @CacheEvict(value = {"book", "books"}, allEntries = true)
     public List<String> updateBookImages(Long bookId, List<MultipartFile> files) {
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new BookNotFoundException("Book with id: " + bookId + " not exist"));
@@ -137,6 +146,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    @CacheEvict(value = "books", allEntries = true)
     public void addBook(@NotNull AddBookDto request) {
         if (bookRepository.existsByTitle(request.getTitle())) {
             throw new BookAlreadyExistException("Book with title: " + request.getTitle() + " already exist");

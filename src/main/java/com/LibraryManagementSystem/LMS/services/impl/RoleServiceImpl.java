@@ -11,6 +11,8 @@ import com.LibraryManagementSystem.LMS.repositories.RoleRepository;
 import com.LibraryManagementSystem.LMS.services.RoleService;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,6 +26,7 @@ public class RoleServiceImpl implements RoleService {
     private final RoleReturnMapper roleReturnMapper;
 
     @Override
+    @CacheEvict(value = "roles", allEntries = true)
     public void addNewRole(@NotNull AddRoleDto request) {
 
         if (roleRepository.existsByName(request.getName())) {
@@ -36,6 +39,7 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
+    @Cacheable(value = "roles")
     public List<ReturnRoleDto> findAll() {
         return roleRepository.findAll().stream()
                 .map(roleReturnMapper::mapTo)
@@ -43,6 +47,7 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
+    @Cacheable(value = "role", key = "#roleId")
     public ReturnRoleDto findRoleById(Long roleId) {
         return roleRepository.findById(roleId)
                 .map(roleReturnMapper::mapTo)

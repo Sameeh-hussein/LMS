@@ -1,6 +1,7 @@
 package com.LibraryManagementSystem.LMS.services.impl;
 
 import com.LibraryManagementSystem.LMS.services.FileStorageService;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,7 +27,7 @@ public class FileStorageServiceImpl implements FileStorageService {
     }
 
     @Override
-    public String uploadImageToFileSystem(MultipartFile file, String type) throws IOException {
+    public String uploadImageToFileSystem(@NotNull MultipartFile file, @NotNull String type) throws IOException {
         String fileName = Objects.requireNonNull(file.getOriginalFilename(), "File name must not be null");
 
         Path directoryPath  = switch (type) {

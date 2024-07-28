@@ -13,8 +13,10 @@ import com.LibraryManagementSystem.LMS.repositories.RoleRepository;
 import com.LibraryManagementSystem.LMS.repositories.UserRepository;
 import com.LibraryManagementSystem.LMS.services.FileStorageService;
 import com.LibraryManagementSystem.LMS.services.UserService;
-import jakarta.validation.constraints.NotNull;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -48,7 +50,7 @@ public class UserServiceImpl implements UserService {
     private final UserReturnMapper userReturnMapper;
 
     @Override
-    public String authenticateUser(@NotNull LoginRequest request) {
+    public String authenticateUser(@NonNull LoginRequest request) {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -69,7 +71,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void registerUserWithRole(@NotNull SignupRequest request, String roleName) {
+    @CacheEvict(value = {"user", "users"}, allEntries = true)
+    public void registerUserWithRole(@NonNull SignupRequest request, String roleName) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new UserAlreadyExistsException("User with email: " + request.getEmail() + " already exists");
         }
@@ -93,6 +96,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Cacheable(value = "users")
     public List<ReturnUserDto> findAll() {
         return userRepository.findAll().stream()
                 .map(userReturnMapper::mapTo)
@@ -100,6 +104,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Cacheable(value = "user", key = "#id")
     public ReturnUserDto findUserById(Long id) {
         return userRepository.findById(id)
                 .map(userReturnMapper::mapTo)
@@ -107,7 +112,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateUserData(Long userId, @NotNull UpdateDataRequest request) {
+    @CacheEvict(value = {"user", "users"}, key = "#userId", allEntries = true)
+    public void updateUserData(Long userId, @NonNull UpdateDataRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User with id: " + userId + "not exist"));
 
@@ -132,7 +138,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String updateUserProfileImage(MultipartFile file) throws IOException {
+    @CacheEvict(value = {"user", "users"}, allEntries = true)
+    public String updateUserProfileImage(@NonNull MultipartFile file) throws IOException {
         String authenticatedEmail = SecurityContextHolder.getContext().getAuthentication().getName();
 
         User user = userRepository.findByEmail(authenticatedEmail)

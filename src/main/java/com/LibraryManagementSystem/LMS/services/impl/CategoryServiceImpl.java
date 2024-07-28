@@ -11,6 +11,8 @@ import com.LibraryManagementSystem.LMS.repositories.CategoryRepository;
 import com.LibraryManagementSystem.LMS.services.CategoryService;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,6 +26,7 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryReturnMapper categoryReturnMapper;
 
     @Override
+    @CacheEvict(value = "categories", allEntries = true)
     public void addCategory(@NotNull AddCategoryDto category) {
         if (categoryRepository.existsByName(category.getName())) {
             throw new CategoryAlreadyExistException("Category with name: " + category.getName() + " already exist");
@@ -32,6 +35,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Cacheable(value = "categories")
     public List<ReturnCategoryDto> findAllCategories() {
         return categoryRepository.findAll().stream()
                 .map(categoryReturnMapper::mapTo)
@@ -39,6 +43,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Cacheable(value = "category", key = "categoryId")
     public ReturnCategoryDto findCategoryById(Long categoryId) {
         return categoryRepository.findById(categoryId)
                 .map(categoryReturnMapper::mapTo)
@@ -46,6 +51,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @CacheEvict(value = {"category", "categories"}, allEntries = true)
     public void removeCategory(Long categoryId) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new CategoryNotFoundException("Category with id: " + categoryId + " not found"));
