@@ -22,7 +22,8 @@ public class UserReturnMapper implements Mapper<User, ReturnUserDto> {
         return ReturnUserDto.builder()
                 .id(user.getId())
                 .email(user.getEmail())
-                .username(user.getUsername())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
                 .roleName(user.getRole().getName())
                 .profileImage(user.getProfileImage().getPath())
                 .build();
