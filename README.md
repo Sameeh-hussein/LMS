@@ -237,3 +237,14 @@ Welcome to the Library Management System project! This web API application is bu
    ```bash
    mvn test
    ```
+   
+## 📚 Resources
+
+Here are some resources that I found particularly useful:
+
+- [Guide to Spring Boot](https://www.youtube.com/watch?v=Nv2DERaMx-4&t=20333s&pp=ygUhdGhlIHVsdGltYXRlIGd1aWRlIHRvIHNwcmluZyBib290)
+- [Spring Security 6 - JWT Authentication and Authorisation](https://youtu.be/KxqlJblhzfI?si=poESThtLtJpD0aEz)
+- [API Testing in Spring Boot](https://medium.com/@mbanaee61/api-testing-in-spring-boot-2a6d69e5c3ce)
+- [Spring Boot Custom Validation](https://medium.com/@bereketberhe27/spring-boot-custom-validation-7af89a64f805)
+- [Spring Boot Cache](https://medium.com/@geonikpal/spring-boot-cache-18ab22a09f42)
+- [Documenting a Spring REST API Using OpenAPI 3.0](https://www.baeldung.com/spring-rest-openapi-documentation)
